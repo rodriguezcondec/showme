@@ -1,2 +1,1 @@
-# showme
-the p2p network visualizer of my dreams.
+# showme : a p2p network visualizer
