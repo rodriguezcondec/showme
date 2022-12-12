@@ -6,40 +6,39 @@ export var glShaders : WebGLProgram []
 
 
 function createProgram(shader: IShader) : WebGLProgram {
-	let gl = a.gl
-	const vertexShader = gl.createShader(gl.VERTEX_SHADER)
-	gl.shaderSource(vertexShader, shader.vertex)
-	gl.compileShader(vertexShader)
+    let gl = a.gl
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)
+    gl.shaderSource(vertexShader, shader.vertex)
+    gl.compileShader(vertexShader)
   
-	var compiled = gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS);
-	var compilationLog = gl.getShaderInfoLog(vertexShader);
+    var compiled = gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS);
+    var compilationLog = gl.getShaderInfoLog(vertexShader);
   
-	const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
-	gl.shaderSource(fragmentShader, shader.fragment)
-	gl.compileShader(fragmentShader)
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
+    gl.shaderSource(fragmentShader, shader.fragment)
+    gl.compileShader(fragmentShader)
   
-	compiled = gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS);
-	compilationLog = gl.getShaderInfoLog(fragmentShader);
+    compiled = gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS);
+    compilationLog = gl.getShaderInfoLog(fragmentShader);
   
-	let program : WebGLProgram = gl.createProgram()
-	gl.attachShader(program, vertexShader)
-	gl.attachShader(program, fragmentShader)
-	gl.linkProgram(program)
+    let program : WebGLProgram = gl.createProgram()
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
   
-	if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-		//alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
-		return null;
-	}
-	return program
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
+        return null;
+    }
+    return program
 }
 
 export function initShadersGl() {
-	glShaders = new Array(EShader.Last)
-	for (let i = 0; i < EShader.Last; i++) {
-	  glShaders[i] = createProgram(glslSrc[i])
-	}
+    glShaders = new Array(EShader.Last)
+    for (let i = 0; i < EShader.Last; i++) {
+      glShaders[i] = createProgram(glslSrc[i])
+    }
 }
-
 
 const glslPhong : IShader = {
   vertex: `
@@ -91,15 +90,14 @@ void main() {
   
   float illuminance = dot(lightDir, n);
   if(illuminance > 0.0) {
-	vec3 brdf = phongBRDF(lightDir, viewDir, n, diffuseColor.rgb, specularColor.rgb, shininess);
-	luminance += brdf * illuminance * lightColor.rgb;
+    vec3 brdf = phongBRDF(lightDir, viewDir, n, diffuseColor.rgb, specularColor.rgb, shininess);
+    luminance += brdf * illuminance * lightColor.rgb;
   }
   gl_FragColor.rgb = luminance;
   gl_FragColor.a = 1.0;
 }
 `
 }
-
 
 const glslTabla : IShader = {
   vertex: `
@@ -123,17 +121,16 @@ uniform vec3 cameraPos;
 uniform sampler2D tablaTexture;
 uniform samplerCube cieloTexture;
 void main() {
-	vec3 normal = vec3(0.0, 0.0, 1.0);
-	vec3 I = normalize(tabla_pos - cameraPos);
-	vec3 R = reflect(I, normal);
-	vec3 RR = vec3(R.x,R.z,-R.y);
-	vec4 skyColor = textureCube(cieloTexture, RR);
-	gl_FragColor = texture2D(tablaTexture, top_uv) * 0.7 + skyColor * 0.3;
-	//gl_FragColor = texture2D(tablaTexture, top_uv);
+    vec3 normal = vec3(0.0, 0.0, 1.0);
+    vec3 I = normalize(tabla_pos - cameraPos);
+    vec3 R = reflect(I, normal);
+    vec3 RR = vec3(R.x,R.z,-R.y);
+    vec4 skyColor = textureCube(cieloTexture, RR);
+    gl_FragColor = texture2D(tablaTexture, top_uv) * 0.7 + skyColor * 0.3;
+    //gl_FragColor = texture2D(tablaTexture, top_uv);
 }
 `
 }
-
 
 const glslBasic : IShader = {
   vertex: `
@@ -160,31 +157,29 @@ void main() {
 `
 }
 
-
-
   const glslTop : IShader = {
-	vertex: `
+    vertex: `
   attribute vec2 a_Position;
   uniform mat4 model;
   uniform mat4 vp;
   uniform vec4 info;
   void main(){
-	vec4 purePosition = model * vec4(a_Position.xy, info.z, 1.0);
-	vec3 newpos = vec3(purePosition.x - purePosition.z * 0.7, purePosition.y - purePosition.z * 0.5, 0.0);
-	gl_Position = vp * vec4(newpos.xyz, 1.0);
+    vec4 purePosition = model * vec4(a_Position.xy, info.z, 1.0);
+    vec3 newpos = vec3(purePosition.x - purePosition.z * 0.7, purePosition.y - purePosition.z * 0.5, 0.0);
+    gl_Position = vp * vec4(newpos.xyz, 1.0);
   }
   `,
-	fragment: `
+    fragment: `
   precision highp float;
   void main() {
-		gl_FragColor = vec4(0.15, 0.15, 0.15, 1.0);
+        gl_FragColor = vec4(0.15, 0.15, 0.15, 1.0);
   }
   `
   }
 
-  let glslSrc : IShader [] = [
-  glslBasic,
-  glslPhong,
-  glslTabla,
-  glslTop,
+let glslSrc : IShader [] = [
+    glslBasic,
+    glslPhong,
+    glslTabla,
+    glslTop,
 ]
