@@ -5,7 +5,6 @@ import { PCamera } from './camera';
 
 export class CShowme {
     public  gl: WebGL2RenderingContext
-
     private iter: number
     private lastTime: number
     public actions: IKeyAction []
@@ -14,9 +13,6 @@ export class CShowme {
     private velZoom: number
     private zoomLogarithm: number
     private lastUpdateTime: number
-    public inDrag: boolean
-    public inTap: boolean
-    public inDragStartTime: number
     public mouseIsOut: boolean
 
     public constructor() {
@@ -25,11 +21,9 @@ export class CShowme {
         this.velPanX = 0
         this.velPanY = 0
         this.velZoom = 0
-        this.inDrag = false
         this.mouseIsOut = true
         this.iter = 0
         this.lastTime = 0
-
     }
     
 
@@ -197,11 +191,9 @@ export class CShowme {
         let time = Date.now()
         let delta = time - this.lastUpdateTime
         this.lastUpdateTime = time
-
         this.updateActions(delta)
         this.clampCamera()
         a.pcamera.update()
-
     }
 
     public async initialize() {
@@ -210,12 +202,8 @@ export class CShowme {
         a.cameraZ = 1200
         a.pcamera = new PCamera(a.cameraX, a.cameraY, a.cameraZ)
         this.zoomLogarithm = Math.log(a.cameraZ)
-        
         await a.tabla.initializeGeometry(1024, 1024)
-        a.tabla.setTablaIndex('tilesColor')
-
         await this.initializeGl(a.gl)
-
     }
 
     async initializeGl(gl: WebGL2RenderingContext) {

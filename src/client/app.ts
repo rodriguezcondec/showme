@@ -32,7 +32,6 @@ public constructor(canvas: HTMLCanvasElement) {
         this.initializeWebGl(a.gl)
         a.matView = mat4.create()
         a.matProjection = mat4.create()
-        a.matNormal = mat4.create()
         a.matViewProjection = mat4.create()
         this.initialized = true
         this.mousekey = new CMousekeyCtlr(this)

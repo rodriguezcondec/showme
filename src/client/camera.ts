@@ -23,7 +23,6 @@ export class PCamera {
         a.cameraZ = z
         this.fovx = 60 * Math.PI / 180
         this.update()
-        a.lightDirection = vec3.fromValues(0,0,-1)
     }
 
     public release() {

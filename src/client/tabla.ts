@@ -5,24 +5,17 @@ import { loadTexture, align8 } from './util'
 import { EShader, EUniform } from './core'
 
 
-
-
 export class CTabla {
-
     texturesDir: string
-    texturesNames: string []
     cubeMapNames: string []
     private positions: Float32Array
     private indices: Uint16Array
     uniformWhtx: vec4
     uniformCameraPos: vec4
-    
-    texturesGl: WebGLTexture []
+    textureGl: WebGLTexture
     verticesGl: WebGLBuffer
     indicesGl: WebGLBuffer
     cieloTextureGl: WebGLTexture
-
-    tablaIndex: number
     matMVP: mat4
     width: number
     height: number
@@ -31,9 +24,6 @@ export class CTabla {
         this.uniformWhtx = vec4.fromValues(1, 1, 10000, -1)
         this.uniformCameraPos = vec4.create()
         this.texturesDir = 'data/tabla/'
-        this.texturesNames = [
-            'tilesColor'
-        ]
         this.cubeMapNames = [
             'posx',
             'negx',
@@ -42,12 +32,11 @@ export class CTabla {
             'posz',
             'negz'
         ]
-        this.tablaIndex = 2
         this.matMVP = mat4.create()
     }
 
     private async initializeGl(gl: WebGL2RenderingContext) {
-        await this.loadTexturesGl()
+        await this.loadTextureGl()
         await this.loadCieloGl('data/cielo/Beach/')
     }
 
@@ -80,7 +69,7 @@ export class CTabla {
     }
 
     public async initialize() {
-            await this.initializeGl(a.gl)
+        await this.initializeGl(a.gl)
     }
 
     private async loadCieloGl(dir: string) {
@@ -92,7 +81,6 @@ export class CTabla {
         const internalFormat = gl.RGBA;
         const srcFormat = gl.RGBA;
         const srcType = gl.UNSIGNED_BYTE;
-  
 
         gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -109,27 +97,10 @@ export class CTabla {
         }
     }
 
-    private async loadTexturesGl() {
-        this.texturesGl = new Array(this.texturesNames.length)
-        let n: number = 0
-        for (let name of this.texturesNames) {
-            let filename = this.texturesDir + name + '.jpg'
-            let t : WebGLTexture = await loadTexture(a.gl, filename)
-            this.texturesGl[n] = t
-            n++
-        }
+    private async loadTextureGl() {
+        let filename = this.texturesDir + 'tilesColor.jpg'
+        this.textureGl = await loadTexture(a.gl, filename)
    }
-
-    public setTablaIndex(tablaName: string)  {
-        let n: number = 0
-        for (let name of this.texturesNames) {
-            if (tablaName == name) {
-                this.tablaIndex = n
-                return
-            }
-            n++
-        }
-    }
 
     public async renderGl() {
         this.updateMatrix()
@@ -139,7 +110,7 @@ export class CTabla {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesGl);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, this.texturesGl[this.tablaIndex]);
+        gl.bindTexture(gl.TEXTURE_2D, this.textureGl);
         gl.uniform1i(a.gl2.shaderMaterials[EShader.Tabla].uniforms.descs[EUniform.PieceTexture].location, 0);
 
         gl.activeTexture(gl.TEXTURE1);
