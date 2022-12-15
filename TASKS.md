@@ -19,8 +19,8 @@
 * [x] extend the metrics
 * [x] export per-node degree value
 * [x] sort by degree, sort by Ip address, filter good nodes
-* [ ] compute Closeness centrality:  the average of all shortest paths
-* [ ] compute Betweenness centrality:  the average of all shortest paths
+* [ ] compute Closeness centrality: the average of all shortest paths
+* [ ] compute Betweenness centrality: how many times a given node participates as a bridge node within a given shortest path.
 * [ ] export closeness & betweenness
 
 ### Network Rendering
