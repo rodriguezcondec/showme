@@ -1,13 +1,31 @@
-use std::{collections::{BTreeMap, HashSet}, hash::Hash};
+use std::{collections::{BTreeMap, HashSet, HashMap}, hash::Hash, time::Duration, net::SocketAddr};
 use spectre::{edge::Edge};
-use std::time::Instant;
-use std::fs::File;
+use serde::Deserialize;
+use std::fs;
 
-//#[derive(Deserialize)]
 pub type Vertex = Vec<usize>;
+pub type AGraph = Vec<Vec<usize>>;
 
-//#[derive(Deserialize)]
-pub type AGraph = Vec<Vertex>;
+#[derive(Default, Clone, Deserialize)]
+pub struct NetworkSummary {
+    pub num_known_nodes: usize,
+    pub num_good_nodes: usize,
+    pub num_known_connections: usize,
+    pub num_versions: usize,
+    pub protocol_versions: HashMap<u32, usize>,
+    pub user_agents: HashMap<String, usize>,
+    pub crawler_runtime: Duration,
+    pub good_addresses: Vec<SocketAddr>,
+    pub agraph: AGraph
+}
+
+#[allow(dead_code)]
+#[derive(Default, Clone, Deserialize)]
+pub struct CrawlerReport {
+    pub jsonrpc: String,
+    pub result: NetworkSummary,
+    pub id: u32,
+}
 
 pub struct NGraph<T> {
     pub edges: HashSet<Edge<T>>,
@@ -103,6 +121,14 @@ where
         }
         agraph
 
+    }
+
+    pub fn load_agraph(&self, crawler_report_path: &str) -> AGraph {
+        let jstring = fs::read_to_string(crawler_report_path).unwrap();
+        let crawler_report: CrawlerReport = serde_json::from_str(&jstring).unwrap();
+        let network_summary = crawler_report.result;
+        let agraph = network_summary.agraph;
+        agraph
     }
 
     pub fn compute_betweenness_and_closeness (&self, agraph: &AGraph) ->  (Vec<u32>, Vec<f64>) {
@@ -217,9 +243,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    //use serde::de::IntoDeserializer;
-
     use super::*;
+    use std::time::Instant;
 
     #[test]
     fn new() {
@@ -344,32 +369,14 @@ mod tests {
 
     #[test]
     fn imported_sample_3226() {
-        let file = File::open("data/sample-3226.json")
-            .expect("file should open read only");
-        let json: serde_json::Value = serde_json::from_reader(file)
-            .expect("file should be proper JSON");
-        let jresult = json.get("result")
-            .expect("file should have result key");
-        let jgraph = jresult.get("agraph")
-            .expect("file should have agraph key");
-
-        let vertices = jgraph.as_array().unwrap();
-        let mut agraph: AGraph = AGraph::new();
-        for v in vertices {
-            let jvertex = v.as_array().unwrap();
-            let mut vertex: Vertex = Vertex::new();
-            // parse the connections
-            for conn in jvertex {
-                vertex.push(conn.as_u64().unwrap() as usize);
-            }
-            agraph.push(vertex);
-        }
+        let ngraph: NGraph<usize> = NGraph::new();
+        let agraph = ngraph.load_agraph("data/sample-3226.json");
         assert_eq!(agraph.len(), 3226);
         let ngraph: NGraph<usize> = NGraph::new();
         let start = Instant::now();
         let (betweenness, closeness) = ngraph.compute_betweenness_and_closeness(&agraph);
         let elapsed = start.elapsed();
-        println!("elapsed-3226: {:?}", elapsed);
+        println!("elapsed for 3226 nodes: {:?}", elapsed);
         assert!(elapsed.as_secs() < 45);
         assert_eq!(agraph.len(), betweenness.len());
         assert_eq!(agraph.len(), closeness.len());
@@ -378,32 +385,14 @@ mod tests {
     
     #[test]
     fn imported_sample_4914() {
-        let file = File::open("data/sample-4914.json")
-            .expect("file should open read only");
-        let json: serde_json::Value = serde_json::from_reader(file)
-            .expect("file should be proper JSON");
-        let jresult = json.get("result")
-            .expect("file should have result key");
-        let jgraph = jresult.get("agraph")
-            .expect("file should have agraph key");
-
-        let vertices = jgraph.as_array().unwrap();
-        let mut agraph: AGraph = AGraph::new();
-        for v in vertices {
-            let jvertex = v.as_array().unwrap();
-            let mut vertex: Vertex = Vertex::new();
-            // parse the connections
-            for conn in jvertex {
-                vertex.push(conn.as_u64().unwrap() as usize);
-            }
-            agraph.push(vertex);
-        }
+        let ngraph: NGraph<usize> = NGraph::new();
+        let agraph = ngraph.load_agraph("data/sample-4914.json");
         assert_eq!(agraph.len(), 4914);
         let ngraph: NGraph<usize> = NGraph::new();
         let start = Instant::now();
         let (betweenness, closeness) = ngraph.compute_betweenness_and_closeness(&agraph);
         let elapsed = start.elapsed();
-        println!("elapsed-4914: {:?}", elapsed);
+        println!("elapsed for 4914 nodes: {:?}", elapsed);
         assert!(elapsed.as_secs() < 900);
         assert_eq!(agraph.len(), betweenness.len());
         assert_eq!(agraph.len(), closeness.len());
