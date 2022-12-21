@@ -19,7 +19,6 @@ pub struct NetworkSummary {
     pub agraph: AGraph
 }
 
-#[allow(dead_code)]
 #[derive(Default, Clone, Deserialize)]
 pub struct CrawlerReport {
     pub jsonrpc: String,
