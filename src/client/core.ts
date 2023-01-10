@@ -44,3 +44,11 @@ export interface IKeyAction {
     acceleration: number;
     velocity: number
 }
+
+export interface IState {
+    agraphlen: number
+    elapsed: string
+    ids: string []
+    betweenness: number []
+    closeness: number []
+}

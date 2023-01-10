@@ -4,6 +4,7 @@ import { a } from './globals'
 import { mat4 } from 'gl-matrix'
 import { PCamera } from "camera"
 import { initShadersGl } from './shaders'
+import { IState } from './core'
 import { CWebGl } from './webgl'
 import { CTabla } from './tabla'
 import { CMousekeyCtlr } from './mousekeyctlr'
@@ -23,19 +24,30 @@ public constructor(canvas: HTMLCanvasElement) {
     a.canvas = canvas
     canvas.width = window.innerWidth
     canvas.height = window.innerHeight
-        console.log('Use WebGL')
-        a.gl = canvas.getContext("webgl2");
-        if (!a.gl) {
-            console.log('Failed to get the rendering context for WebGL');
-            return;
-        }
-        this.initializeWebGl(a.gl)
-        a.matView = mat4.create()
-        a.matProjection = mat4.create()
-        a.matViewProjection = mat4.create()
-        this.initialized = true
-        this.mousekey = new CMousekeyCtlr(this)
-   }
+    console.log('Use WebGL')
+    a.gl = canvas.getContext("webgl2");
+    if (!a.gl) {
+        console.log('Failed to get the rendering context for WebGL');
+        return;
+    }
+
+    let self = this
+    self.readTextFile('data/state.json', async function(atext: string) {
+        let istate = <IState>JSON.parse(atext)
+            await self.init(istate)
+    });
+
+}
+
+async init(state: IState) {
+    console.log('init: state ', state)
+    this.initializeWebGl(a.gl)
+    a.matView = mat4.create()
+    a.matProjection = mat4.create()
+    a.matViewProjection = mat4.create()
+    this.initialized = true
+    this.mousekey = new CMousekeyCtlr(this)
+}
 
 async initializeWebGl(gl: WebGL2RenderingContext) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0)
