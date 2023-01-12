@@ -47,8 +47,13 @@ export interface IKeyAction {
 
 export interface IState {
     agraphlen: number
-    elapsed: string
-    ids: string []
+    elapsed: number
+    node_ids: string []
     betweenness: number []
     closeness: number []
+    num_connections: number []
+    min_betweenness: number
+    max_betweenness: number
+    min_closeness: number
+    max_closeness: number
 }
