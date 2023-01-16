@@ -22,6 +22,7 @@
     "@types/express": "^4.17.13",
     "@types/gl-matrix": "^3.2.0",
     "@types/hammerjs": "^2.0.40",
+    "@types/webgl2": "^0.0.6",
     "@webgpu/types": "^0.1.7",
     "express": "^4.17.1",
     "formidable": "^2.0.1",

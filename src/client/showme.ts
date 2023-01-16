@@ -173,18 +173,18 @@ export class CShowme {
     }
 
     private clampCamera() {
-        if (a.cameraX < -a.tabla.width/2) {
-            a.cameraX = -a.tabla.width/2
-        }
-        if (a.cameraX > a.tabla.width/2) {
-            a.cameraX = a.tabla.width/2
-        }
-        if (a.cameraY < -a.tabla.height/2) {
-            a.cameraY = -a.tabla.height/2
-        }
-        if (a.cameraY > a.tabla.height/2) {
-            a.cameraY = a.tabla.height/2
-        }
+        // if (a.cameraX < -a.tabla.width/2) {
+        //     a.cameraX = -a.tabla.width/2
+        // }
+        // if (a.cameraX > a.tabla.width/2) {
+        //     a.cameraX = a.tabla.width/2
+        // }
+        // if (a.cameraY < -a.tabla.height/2) {
+        //     a.cameraY = -a.tabla.height/2
+        // }
+        // if (a.cameraY > a.tabla.height/2) {
+        //     a.cameraY = a.tabla.height/2
+        // }
     }
 
     public update() {
@@ -192,8 +192,9 @@ export class CShowme {
         let delta = time - this.lastUpdateTime
         this.lastUpdateTime = time
         this.updateActions(delta)
-        this.clampCamera()
+        // this.clampCamera()
         a.pcamera.update()
+        a.world.update()
     }
 
     public async initialize() {
@@ -202,7 +203,7 @@ export class CShowme {
         a.cameraZ = 1200
         a.pcamera = new PCamera(a.cameraX, a.cameraY, a.cameraZ)
         this.zoomLogarithm = Math.log(a.cameraZ)
-        await a.tabla.initializeGeometry(1024, 1024)
+        a.pcamera.update();
         await this.initializeGl(a.gl)
     }
 
@@ -220,8 +221,10 @@ export class CShowme {
 
         this.update()
 
-        if (a.tabla) {
-            a.tabla.renderGl()
+        if (a.world) {
+            a.gl.uniformMatrix4fv(a.world.viewLoc, false, a.matView);
+            a.gl.uniformMatrix4fv(a.world.projectionLoc, false, a.matProjection);
+            a.world.renderGl()
         }
 
     }

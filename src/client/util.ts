@@ -17,10 +17,19 @@ export function channelToColor(channel: number) : vec4 {
     return result
 }
 
+export function randomColor() : vec4 {
+    let blue = Math.random()
+    let green = Math.random()
+    let red = Math.random()
+    let result = vec4.fromValues(red, green, blue, 1)
+    return result
+}
+
 export function align8(a: number) : number {
     let result = ((a + 15 ) & 0xfffffff0)
     return result
 }
+
 export function colorToId(color: number) : number {
     if (!color) {
         return -1

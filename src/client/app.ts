@@ -5,10 +5,8 @@ import { mat4 } from 'gl-matrix'
 import { PCamera } from "camera"
 import { initShadersGl } from './shaders'
 import { IState } from './core'
-import { CWebGl } from './webgl'
-import { CTabla } from './tabla'
 import { CMousekeyCtlr } from './mousekeyctlr'
-
+import { CWorld } from './world'
 
 export class CApp {
     public showme: CShowme;
@@ -41,10 +39,12 @@ public constructor(canvas: HTMLCanvasElement) {
 
 async init(state: IState) {
     console.log('init: state ', state)
-    this.initializeWebGl(a.gl)
     a.matView = mat4.create()
     a.matProjection = mat4.create()
     a.matViewProjection = mat4.create()
+    this.initializeWebGl(a.gl)
+    a.world = new CWorld(state, a.gl);
+    a.world.initialize();
     this.initialized = true
     this.mousekey = new CMousekeyCtlr(this)
 }
@@ -63,19 +63,15 @@ async initializeWebGl(gl: WebGL2RenderingContext) {
         var ext = gl.getExtension('OES_element_index_uint');
         console.log('ext = ' + ext)
 
-        a.tabla = new CTabla()
-        await a.tabla.initialize()
- 
-        a.gl2 = new CWebGl()
-        await a.gl2.initialize()
+        // a.gl2 = new CWebGl()
+        // await a.gl2.initialize()
         await this.initShowme()
 
     }
 
     public renderGl() {
         a.gl.clear(a.gl.COLOR_BUFFER_BIT | a.gl.DEPTH_BUFFER_BIT);
-        if (this.showme) {
-            this.showme.renderGl()
+        if (this.showme) {            this.showme.renderGl()
         }
     }
 
