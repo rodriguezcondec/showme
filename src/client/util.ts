@@ -116,10 +116,37 @@ export async function loadTexture(gl: WebGL2RenderingContext, url: string) : Pro
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     }
-  
     return texture;
-  }
+}
   
-  function isPowerOf2(value) {
+export function createRandomTexture(gl: WebGL2RenderingContext, width: number, height: number) : WebGLTexture {
+    const npixels = width * height;
+    const data = new Uint8Array(npixels*4);
+    let n = 0;
+    for (let i = 0; i < npixels; i++) {
+        data[n+0] = Math.floor(Math.random() * 256)
+        data[n+1] = Math.floor(Math.random() * 256)
+        data[n+2] = Math.floor(Math.random() * 256)
+        data[n+3] = 255
+        n += 4
+    }
+    console.log('data: ', data)
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  width, height, border, srcFormat, srcType,
+                  data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    return texture;
+}
+
+function isPowerOf2(value) {
     return (value & (value - 1)) == 0;
-  }
+}

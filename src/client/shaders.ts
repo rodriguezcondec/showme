@@ -110,24 +110,26 @@ export function initShadersGl() {
 
 const glslIcosa : IShader = {
     vertex: `#version 300 es
-  uniform mat4 u_view;
-  uniform mat4 u_projection;
+  uniform mat4 u_viewProjection;
+  uniform sampler2D u_noiseTexture;
+  uniform vec4 u_params;
   in vec3 a_position;
   in vec3 a_normal;
   in vec4 a_color;
+  in vec4 a_metadata;
   in mat4 a_model;
   out vec4 vColor;
   void main(){
-    vec3 lightDirection = vec3(0.0, 0.0, -1.0);
-    // vec3 normalNormal = normalize(vec3(a_model * vec4(a_normal, 1.0)));
-    // float light = dot(a_normal, lightDirection);
+    float secs = u_params.x * a_metadata.x * 0.0000036;
+    vec4 brownian = texture(u_noiseTexture, vec2(secs,0.5)) * 2.5;
+    vec3 lightDirection = normalize(vec3(0.2, 0.2, -1.0));
     mat4 normalMatrix = inverse(a_model);
     normalMatrix = transpose(normalMatrix);
     vec3 transformedNormal = (normalMatrix * vec4(a_normal, 1.0)).xyz;
     float light = dot(transformedNormal, lightDirection);
     light = 0.3 + light * 0.7;
     vColor = vec4(a_color.r * light, a_color.g * light, a_color.b * light, 1.0);
-    gl_Position = u_projection * u_view * a_model * vec4(a_position, 1.0);
+    gl_Position = u_viewProjection * a_model * vec4(a_position + brownian.xyz, 1.0);
   }
   `,
     fragment: `#version 300 es
