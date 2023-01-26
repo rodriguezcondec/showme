@@ -243,39 +243,33 @@ export class CWorld {
         this.icosaVao = gl.createVertexArray();
         gl.bindVertexArray(this.icosaVao);
 
-
-        // ATTRIBS 0/1/2/3/5/7 are in the transform data1
         this.initTransformData();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.transformBuffer);
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 48);
-        gl.enableVertexAttribArray(1);
-        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 64);
-        gl.enableVertexAttribArray(2);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 80);
-        gl.enableVertexAttribArray(3);
-        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 96);
-        gl.enableVertexAttribArray(5);
-        gl.vertexAttribPointer(5, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 0);
-        gl.enableVertexAttribArray(7);
-        gl.vertexAttribPointer(7, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 16);
+        gl.enableVertexAttribArray(colorLoc);
+        gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 0);
+        gl.enableVertexAttribArray(metadataLoc);
+        gl.vertexAttribPointer(metadataLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 16);
+        gl.enableVertexAttribArray(modelLoc);
+        gl.vertexAttribPointer(modelLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 48);
+        gl.enableVertexAttribArray(modelLoc+1);
+        gl.vertexAttribPointer(modelLoc+1, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 64);
+        gl.enableVertexAttribArray(modelLoc+2);
+        gl.vertexAttribPointer(modelLoc+2, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 80);
+        gl.enableVertexAttribArray(modelLoc+3);
+        gl.vertexAttribPointer(modelLoc+3, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 96);
 
-        gl.vertexAttribDivisor(0,1);
-        gl.vertexAttribDivisor(1,1);
-        gl.vertexAttribDivisor(2,1);
-        gl.vertexAttribDivisor(3,1);
-        gl.vertexAttribDivisor(5,1);
-        gl.vertexAttribDivisor(7,1);
+        gl.vertexAttribDivisor(modelLoc,1);
+        gl.vertexAttribDivisor(modelLoc+1,1);
+        gl.vertexAttribDivisor(modelLoc+2,1);
+        gl.vertexAttribDivisor(modelLoc+3,1);
+        gl.vertexAttribDivisor(colorLoc,1);
+        gl.vertexAttribDivisor(metadataLoc,1);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.icosaGeometry);
-
-        // ATTRIBS 4 & 6 are in the vertex data (same for each instance)
-        // positions
-        gl.enableVertexAttribArray(4);
-        gl.vertexAttribPointer(4, 3, gl.FLOAT, false, 24, 0);
-        // normals
-        gl.enableVertexAttribArray(6);
-        gl.vertexAttribPointer(6, 3, gl.FLOAT, false, 24, 12);
+        gl.enableVertexAttribArray(positionLoc);
+        gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(normalLoc);
+        gl.vertexAttribPointer(normalLoc, 3, gl.FLOAT, false, 24, 12);
 
         // Picker ------------------------------------------------------
         positionLoc = gl.getAttribLocation(glShaders[EShader.Picker], 'a_position');
@@ -293,35 +287,30 @@ export class CWorld {
         this.pickerVao = gl.createVertexArray();
         gl.bindVertexArray(this.pickerVao);
 
-
-        // ATTRIBS 0/1/2/3/5/6 are in the transform data1
         gl.bindBuffer(gl.ARRAY_BUFFER, this.pickerBuffer);
-        gl.enableVertexAttribArray(0);
-        gl.vertexAttribPointer(0, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 48);
-        gl.enableVertexAttribArray(1);
-        gl.vertexAttribPointer(1, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 64);
-        gl.enableVertexAttribArray(2);
-        gl.vertexAttribPointer(2, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 80);
-        gl.enableVertexAttribArray(3);
-        gl.vertexAttribPointer(3, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 96);
-        gl.enableVertexAttribArray(6);
-        gl.vertexAttribPointer(6, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 32);
-        gl.enableVertexAttribArray(5);
-        gl.vertexAttribPointer(5, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 16);
+        gl.enableVertexAttribArray(modelLoc);
+        gl.vertexAttribPointer(modelLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 48);
+        gl.enableVertexAttribArray(modelLoc+1);
+        gl.vertexAttribPointer(modelLoc+1, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 64);
+        gl.enableVertexAttribArray(modelLoc+2);
+        gl.vertexAttribPointer(modelLoc+2, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 80);
+        gl.enableVertexAttribArray(modelLoc+3);
+        gl.vertexAttribPointer(modelLoc+3, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 96);
+        gl.enableVertexAttribArray(pickerColorLoc);
+        gl.vertexAttribPointer(pickerColorLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 32);
+        gl.enableVertexAttribArray(metadataLoc);
+        gl.vertexAttribPointer(metadataLoc, 4, gl.FLOAT, false, NODE_TRANSFORM_SIZE*4, 16);
 
-        gl.vertexAttribDivisor(0,1);
-        gl.vertexAttribDivisor(1,1);
-        gl.vertexAttribDivisor(2,1);
-        gl.vertexAttribDivisor(3,1);
-        gl.vertexAttribDivisor(5,1);
-        gl.vertexAttribDivisor(6,1);
+        gl.vertexAttribDivisor(modelLoc,1);
+        gl.vertexAttribDivisor(modelLoc+1,1);
+        gl.vertexAttribDivisor(modelLoc+2,1);
+        gl.vertexAttribDivisor(modelLoc+3,1);
+        gl.vertexAttribDivisor(pickerColorLoc,1);
+        gl.vertexAttribDivisor(metadataLoc,1);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.icosaGeometry);
-
-        // ATTRIBS 4 & 6 are in the vertex data (same for each instance)
-        // positions
-        gl.enableVertexAttribArray(4);
-        gl.vertexAttribPointer(4, 3, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(positionLoc);
+        gl.vertexAttribPointer(positionLoc, 3, gl.FLOAT, false, 24, 0);
 
         // World Map ------------------------------------------------------------
         positionLoc = gl.getAttribLocation(glShaders[EShader.WorldMap], 'a_position');
