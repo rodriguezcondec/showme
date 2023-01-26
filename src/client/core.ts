@@ -2,20 +2,10 @@
 
 export enum EShader {
     Icosa = 0,
+    Picker,
+    WorldMap,
     Last
 }
-
-// export enum EUniform {
-//     Info = 0,
-//     Mv,
-//     Mvp,
-//     PieceTexture,
-//     Projection,
-//     NormalTexture,
-//     Flip,
-//     Color,
-//     ColorSat
-// }
 
 export interface ICamera {
     position: [number, number, number]
@@ -43,14 +33,23 @@ export interface IKeyAction {
 }
 
 export interface INode {
-    id: string
+    ip: string
     betweenness: number
     closeness: number
     num_connections: number
+    geolocation: {
+        ip: string
+        country: string
+        city: string
+        latitude: number
+        longitude: number
+        timezone: string
+        isp: string
+    }
 }
 
 export interface IState {
-    agraphlen: number
+    agraph_length: number
     elapsed: number
     nodes: INode []
     min_betweenness: number

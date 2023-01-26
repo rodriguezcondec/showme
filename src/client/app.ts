@@ -14,8 +14,9 @@ export class CApp {
     public  gl: any
     private initialized: boolean
     private mousekey: CMousekeyCtlr
-
-
+    private startTime: number
+    private lastTime: number
+    private iter: number
 
 
 public constructor(canvas: HTMLCanvasElement) {
@@ -29,12 +30,39 @@ public constructor(canvas: HTMLCanvasElement) {
         return;
     }
 
+    // Create text nodes to save some time for the browser.
+    a.timeNode = document.createTextNode("");
+    a.fpsNode = document.createTextNode("");
+    a.ipNode = document.createTextNode("");
+    a.betweennessNode = document.createTextNode("");
+    a.closenessNode = document.createTextNode("");
+    a.connectionsNode = document.createTextNode("");
+    a.latitudeNode = document.createTextNode("");
+    a.longitudeNode = document.createTextNode("");
+    a.cityNode = document.createTextNode("");
+    a.countryNode = document.createTextNode("");
+
+    // Add those text nodes where they need to go
+    document.querySelector("#time").appendChild(a.timeNode);
+    document.querySelector("#fps").appendChild(a.fpsNode);
+    document.querySelector("#ip").appendChild(a.ipNode);
+    document.querySelector("#betweenness").appendChild(a.betweennessNode);
+    document.querySelector("#closeness").appendChild(a.closenessNode);
+    document.querySelector("#connections").appendChild(a.connectionsNode);
+    document.querySelector("#latitude").appendChild(a.latitudeNode);
+    document.querySelector("#longitude").appendChild(a.longitudeNode);
+    document.querySelector("#city").appendChild(a.cityNode);
+    document.querySelector("#country").appendChild(a.countryNode);
+    document.getElementById("overlayRight").style.visibility = "hidden";
+
     let self = this
-    self.readTextFile('data/state.json', async function(atext: string) {
+    self.readTextFile('data/state-2.json', async function(atext: string) {
         let istate = <IState>JSON.parse(atext)
             await self.init(istate)
     });
-
+    this.startTime = Date.now()/1000
+    this.lastTime = 0
+    this.iter = 0
 }
 
 async init(state: IState) {
@@ -57,21 +85,27 @@ async initializeWebGl(gl: WebGL2RenderingContext) {
         gl.frontFace(gl.CW)
         gl.cullFace(gl.BACK)
         gl.enable(gl.CULL_FACE)
-
         initShadersGl()
-
-        var ext = gl.getExtension('OES_element_index_uint');
-        console.log('ext = ' + ext)
-
-        // a.gl2 = new CWebGl()
-        // await a.gl2.initialize()
         await this.initShowme()
+    }
 
+    private updateFps() {
+        this.iter++
+        if (this.iter % 15 == 0) {
+            let now = Date.now()
+            let delta = now - this.lastTime
+            this.lastTime = now
+            let fps = 1000*15/delta;
+            a.fpsNode.nodeValue = fps.toFixed(6);
+        }
     }
 
     public renderGl() {
+        this.updateFps();
         a.gl.clear(a.gl.COLOR_BUFFER_BIT | a.gl.DEPTH_BUFFER_BIT);
-        if (this.showme) {            this.showme.renderGl()
+        a.timeNode.nodeValue = (Date.now()/1000 - this.startTime).toFixed(2);   // 2 decimal places        
+        if (this.showme) {
+            this.showme.renderGl()
         }
     }
 

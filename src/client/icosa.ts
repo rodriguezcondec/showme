@@ -1,4 +1,6 @@
 
+
+const ICOSA_SCALE: number = 1.6
 const positions = [
     0.000000, -0.525731, 0.850651,
     0.850651, 0.000000, 0.525731,
@@ -62,11 +64,10 @@ const indices = [
 
 export function initIcosa(gl: WebGL2RenderingContext) : WebGLBuffer {
     console.log('initIcosa')
-
     let size = 20 * 3 * 6;
     let icosaData : Float32Array = new Float32Array(size)
     let i = 0;
-    let scale = 5;
+    let scale = ICOSA_SCALE;
     for (let poly = 0; poly < 20; poly++) {
         for (let vert = 0; vert < 3; vert++) {
             let index = indices[poly*3 + vert] - 1

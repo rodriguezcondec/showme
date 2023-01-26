@@ -1,10 +1,11 @@
 
+import { Console } from 'console'
 import { vec2, vec3, vec4 } from 'gl-matrix'
 
 export function idToColor(id: number) : vec4 {
-    let blue = (id % 64) * 4 + 2
-    let green = Math.floor(id / 64) * 4 + 2
-    let red = 192
+    let red = (id>>12) * 4 + 2
+    let green = ((id >> 6) & 63) * 4 + 2
+    let blue = (id & 63) * 4 + 2
     let result = vec4.fromValues(red/255, green/255, blue/255, 1)
     return result
 }
@@ -34,45 +35,15 @@ export function colorToId(color: number) : number {
     if (!color) {
         return -1
     }
+    let r = (color >> 16) & 255;
     let g = (color >> 8) & 255;
     let b = color & 255;
-    let blue = Math.floor(b / 4)
+    let red = Math.floor(r / 4)
     let green = Math.floor(g / 4)
-    let id = green * 64 + blue
+    let blue = Math.floor(b / 4)
+    let id = red * 4096 + green * 64 + blue
+    console.log('id ', id)
     return id
-}
-
-
-export function getNormal3( p1 : vec2, p2 : vec2, p3 : vec2 ) : vec3
-{
-    // find average of two vectors
-    let dx1 = p2[0] - p1[0];
-    let dy1 = p2[1] - p1[1];
-    let dx2 = p3[0] - p2[0];
-    let dy2 = p3[1] - p2[1];
-    let dx = (dx1+dx2)/2;
-    let dy = (dy1+dy2)/2;
-
-    // normal is just -y, 0, x
-    let result  = vec3.create()
-    return vec3.normalize(result, vec3.fromValues(-dy,dx,0))
-}
-
-export function getNormal2( p1 : vec2, p2 : vec2 )
-{
-    let dx = p2[0] - p1[0];
-    let dy = p2[1] - p1[1];
-
-    let result  = vec3.create()
-    return vec3.normalize(result, vec3.fromValues(-dy,dx,0))
-}
-
-
-export function distance( x1: number, y1: number, x2: number, y2: number )
-{
-    let dx = x2-x1
-    let dy = y2-y1
-    return Math.sqrt(dx*dx+dy*dy)
 }
 
 export async function loadTexture(gl: WebGL2RenderingContext, url: string) : Promise<WebGLTexture> {
@@ -105,6 +76,8 @@ export async function loadTexture(gl: WebGL2RenderingContext, url: string) : Pro
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
                 srcFormat, srcType, image);
+
+    console.log(`loadTexture ${url}, width ${image.width}, height ${image.height}`)
 
     if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
         // Yes, it's a power of 2. Generate mips.

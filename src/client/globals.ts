@@ -1,12 +1,10 @@
 
-import { vec3, mat4 } from 'gl-matrix'
-// import { CWebGl } from "./webgl"
+import { mat4 } from 'gl-matrix'
 import { PCamera } from "camera"
 import { CWorld } from './world'
 
 
 export interface IGlobalInfo {
-    // gl2: CWebGl
     world: CWorld
     canvas: HTMLCanvasElement
     pcamera: PCamera
@@ -19,10 +17,19 @@ export interface IGlobalInfo {
     matView: mat4
     matViewProjection: mat4
     matProjection: mat4
+    timeNode: Text,
+    fpsNode: Text,
+    ipNode: Text,
+    betweennessNode: Text,
+    closenessNode: Text,
+    connectionsNode: Text,
+    latitudeNode: Text,
+    longitudeNode: Text,
+    cityNode: Text,
+    countryNode: Text,
 }
 
 export let a : IGlobalInfo= {
-    // gl2: null,
     canvas: null,
     pcamera: null,
     cameraX: 0,
@@ -34,6 +41,16 @@ export let a : IGlobalInfo= {
     matView: null,
     matProjection: null,
     matViewProjection: null,
-    world: null
+    world: null,
+    timeNode: null,
+    fpsNode: null,
+    latitudeNode: null,
+    longitudeNode: null,
+    cityNode: null,
+    countryNode: null,
+    ipNode: null,
+    betweennessNode: null,
+    closenessNode: null,
+    connectionsNode: null
 } 
 
