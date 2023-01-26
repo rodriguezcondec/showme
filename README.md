@@ -1,13 +1,14 @@
 # showme : a p2p network visualizer
 
 
-## Build the app
+## Build and run the app
 
 ```
 npm i
 npm run build
 npm run start
 ```
+Open a browser at http://127.0.0.1:3000.
 
 ## Keyboard Interface
 
