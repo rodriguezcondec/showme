@@ -56,7 +56,7 @@ public constructor(canvas: HTMLCanvasElement) {
     document.getElementById("overlayRight").style.visibility = "hidden";
 
     let self = this
-    self.readTextFile('data/state-2.json', async function(atext: string) {
+    self.readTextFile('data/state.json', async function(atext: string) {
         let istate = <IState>JSON.parse(atext)
             await self.init(istate)
     });
