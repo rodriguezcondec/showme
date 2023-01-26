@@ -8,10 +8,8 @@ module.exports = {
     './dist/client/client.js',
     './dist/client/core.js',
     './dist/client/globals.js',
-    './dist/client/material.js',
     './dist/client/mousekeyctlr.js',
     './dist/client/showme.js',
-    './dist/client/uniforms.js',
   ],
   output: {
     filename: 'main.js',
