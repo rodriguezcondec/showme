@@ -1,5 +1,5 @@
 
-import { mat4 } from 'gl-matrix'
+import { mat4, vec3 } from 'gl-matrix'
 import { PCamera } from "camera"
 import { CWorld } from './world'
 
@@ -17,6 +17,7 @@ export interface IGlobalInfo {
     matView: mat4
     matViewProjection: mat4
     matProjection: mat4
+    nodeScale: vec3
     timeNode: Text,
     fpsNode: Text,
     ipNode: Text,
@@ -27,6 +28,7 @@ export interface IGlobalInfo {
     longitudeNode: Text,
     cityNode: Text,
     countryNode: Text,
+    positionNode: Text
 }
 
 export let a : IGlobalInfo= {
@@ -41,6 +43,7 @@ export let a : IGlobalInfo= {
     matView: null,
     matProjection: null,
     matViewProjection: null,
+    nodeScale: null,
     world: null,
     timeNode: null,
     fpsNode: null,
@@ -51,6 +54,7 @@ export let a : IGlobalInfo= {
     ipNode: null,
     betweennessNode: null,
     closenessNode: null,
-    connectionsNode: null
+    connectionsNode: null,
+    positionNode: null
 } 
 

@@ -1,29 +1,25 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
-import { INode } from './core'
+import { INode, WORLD_WIDTH, WORLD_HEIGHT } from './core'
 import { a } from './globals'
 import { mat4, vec3, vec4 } from 'gl-matrix'
 import { idToColor, randomColor } from './util'
-
-
-const WORLD_WIDTH: number = 3600;
-const WORLD_HEIGHT: number = 1800;
-const WORLD_DEPTH: number = 24;
 
 export class CNode {
     public inode: INode
     public color: vec4
     public idColor: vec4
+    public id: number
     public metadata: vec4
     public info: vec4
     public position: vec3
     public center: vec3
     public rotation: vec3
-    public positionRadius: vec4
     public matWorld: mat4
     public matMV: mat4
     public matMVP: mat4
-    public radius: number
+    public scale: number
+    public numConnections: number
 
 
     public release() {
@@ -53,23 +49,47 @@ export class CNode {
         return this.rotation[0]
     }
 
-    public updatePositionRadius(isSub: boolean) {
-        this.positionRadius = vec4.fromValues(this.position[0], this.position[1], this.radius, isSub ? 1 : 0)
-
-    }
-
     public updateOverlayUniformsGl(proj: mat4, view: mat4) {
         this.updateMatrix()
         mat4.multiply(this.matMV, view, this.matWorld)
         mat4.multiply(this.matMVP, proj, this.matMV)
     }
 
+    public initializePosition(isLocalHost: boolean) {
+        const zScale = 0.8;
+        let x: number = (this.inode.geolocation.longitude + 180) / 360;
+        let y: number = (this.inode.geolocation.latitude + 90) / 180;
+        let z: number = this.inode.column_position*zScale;
+
+        let longitude = x - 0.5;
+        let latitude = y - 0.5;
+        // normalize and perform Wager VI projection on longitude/x
+        // https://en.wikipedia.org/wiki/Wagner_VI_projection
+        // shader does inverse
+        let transformedX = 0.5 + longitude * Math.sqrt(1 - 3*latitude*latitude);
+
+
+        this.setPosition(
+            transformedX * WORLD_WIDTH - WORLD_WIDTH/2,
+            y * WORLD_HEIGHT - WORLD_HEIGHT/2,
+            z,
+        )
+    }
+
     public constructor(inode: INode, id: number) {
         this.inode = inode;
+        this.id = id;
+        this.numConnections = this.inode.connections.length
+        let isLocalHost = inode.ip == "127.0.0.1"
+
         this.metadata = vec4.create()
-        this.color = randomColor()
+        this.color = isLocalHost ? vec4.fromValues(1.0, 1.0, 1.0, 1) : randomColor()
         this.idColor = idToColor(id)
-        this.positionRadius = vec4.create()
+        this.scale = isLocalHost ? 4 : 1
+        if (isLocalHost) {
+            this.inode.geolocation.city = 'n/a'
+            this.inode.geolocation.country = 'localhost'
+        }
 
         this.position = vec3.create()
         this.center = vec3.create()
@@ -83,27 +103,12 @@ export class CNode {
         //   Betweenness
         //   Closeness
         //   iD (id, as integer)
-        this.metadata[0] = inode.num_connections;
+        this.metadata[0] = this.numConnections;
         this.metadata[1] = inode.betweenness;
         this.metadata[2] = inode.closeness;
         this.metadata[3] = id;
 
-        // normalize and perform Wager VI projection on longitude/x
-        // https://en.wikipedia.org/wiki/Wagner_VI_projection
-        // shader does inverse
-        let x: number = (this.inode.geolocation.longitude + 180) / 360;
-        let y: number = (this.inode.geolocation.latitude + 90) / 180;
-        let z: number = Math.random();
-
-        let longitude = x - 0.5;
-        let latitude = y - 0.5;
-        let transformedX = 0.5 + longitude * Math.sqrt(1 - 3*latitude*latitude);
-
-        this.setPosition(
-            transformedX * WORLD_WIDTH - WORLD_WIDTH/2,
-            y * WORLD_HEIGHT - WORLD_HEIGHT/2,
-            z * WORLD_DEPTH * 0.8 + WORLD_DEPTH * 0.2,
-        )
+        this.initializePosition(isLocalHost);
     }
 
     public setPosition(x: number, y: number, z: number) {
@@ -117,6 +122,8 @@ export class CNode {
         let ry = mat4.create()
         let t = mat4.create()
         mat4.identity(this.matWorld)
+        mat4.scale(this.matWorld, this.matWorld, a.nodeScale)
+        mat4.scale(this.matWorld, this.matWorld, vec3.fromValues(this.scale,this.scale, this.scale))
         mat4.translate(this.matWorld, this.matWorld, vec3.fromValues(-this.center[0], -this.center[1], 0))
         mat4.fromYRotation(ry, this.rotation[1])
         mat4.multiply(this.matWorld, ry, this.matWorld)

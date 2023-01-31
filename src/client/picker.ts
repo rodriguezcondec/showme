@@ -2,6 +2,8 @@
 import { colorToId } from './util'
 import { a } from './globals'
 
+const PICKER_TEXTURE_SIZE: number = 2048;
+
 export class CPicker {
     private gl: WebGL2RenderingContext
     private fb: WebGLFramebuffer
@@ -15,8 +17,8 @@ export class CPicker {
         this.gl = a.gl
         this.renderTarget = null
         this.pixelBuffer = new Uint8Array(4);
-        this.textureWidth = 1024
-        this.textureHeight = 1024
+        this.textureWidth = PICKER_TEXTURE_SIZE
+        this.textureHeight = PICKER_TEXTURE_SIZE
         this.initialize()
     }
 

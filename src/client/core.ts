@@ -1,9 +1,13 @@
 
 
+export const WORLD_WIDTH: number = 3600;
+export const WORLD_HEIGHT: number = 1800;
+
 export enum EShader {
     Icosa = 0,
     Picker,
     WorldMap,
+    Connection,
     Last
 }
 
@@ -23,6 +27,7 @@ export enum EKeyId {
     ArrowDown = 'down',
     ZoomIn = 'in',
     ZoomOut = 'out',
+    ToggleConnection = 'conn'
 }
 
 export interface IKeyAction {
@@ -36,7 +41,9 @@ export interface INode {
     ip: string
     betweenness: number
     closeness: number
-    num_connections: number
+    column_position: number
+    column_size: number
+    connections: number []
     geolocation: {
         ip: string
         country: string

@@ -2,6 +2,8 @@
 import { EKeyId, IKeyAction } from './core'
 import { a } from './globals';
 import { PCamera } from './camera';
+import { zoomLogToScale } from './util'
+import { vec3 } from 'gl-matrix'
 
 export class CShowme {
     public  gl: WebGL2RenderingContext
@@ -25,6 +27,9 @@ export class CShowme {
 
     onAction(isDown: boolean, id: EKeyId) {
         if (isDown) {
+            if (id == EKeyId.ToggleConnection && a.world) {
+                a.world.connectionMode = !a.world.connectionMode
+            }
             let action: IKeyAction = {
                 id: id,
                 timestamp: Date.now(),
@@ -44,7 +49,7 @@ export class CShowme {
 
     public handleClick(x: number, y: number) {
         // console.log(`showme: handleClick: ${x}, ${y}`)
-        a.world.handleClick(x, y)
+        a.world.handleClick(x-0.5, y-0.5)
 
     }
 
@@ -166,7 +171,17 @@ export class CShowme {
         if (this.velZoom) {
             let dz = this.velZoom * delta / 1000
             this.zoomLogarithm += dz
+            if (this.zoomLogarithm > 8.14786) {
+                this.zoomLogarithm = 8.14786;
+                this.velZoom = 0;
+            }
+            if (this.zoomLogarithm < 3.158883) {
+                this.zoomLogarithm = 3.158883;
+                this.velZoom = 0;
+            }
+            a.nodeScale = zoomLogToScale(this.zoomLogarithm);
             a.cameraZ = Math.exp(this.zoomLogarithm)
+            // console.log(`Z ${a.cameraZ}, log ${this.zoomLogarithm}`)
             a.pcamera.update()
         }
     }
@@ -191,7 +206,6 @@ export class CShowme {
         let delta = time - this.lastUpdateTime
         this.lastUpdateTime = time
         this.updateActions(delta)
-        // this.clampCamera()
         a.pcamera.update()
         a.world.update()
     }
@@ -202,6 +216,7 @@ export class CShowme {
         a.cameraZ = 1200
         a.pcamera = new PCamera(a.cameraX, a.cameraY, a.cameraZ)
         this.zoomLogarithm = Math.log(a.cameraZ)
+        a.nodeScale = zoomLogToScale(this.zoomLogarithm);
         a.pcamera.update();
         await this.initializeGl(a.gl)
     }
@@ -211,14 +226,10 @@ export class CShowme {
     }
 
     public renderGl() {
-
-
         this.update()
-
         if (a.world) {
             a.world.renderGl()
         }
-
     }
 
     public release() {

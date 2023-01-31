@@ -1,7 +1,7 @@
 import { CShowme } from './showme'
 import { EKeyId } from './core'
 import { a } from './globals'
-import { mat4 } from 'gl-matrix'
+import { mat4, vec3 } from 'gl-matrix'
 import { PCamera } from "camera"
 import { initShadersGl } from './shaders'
 import { IState } from './core'
@@ -39,6 +39,7 @@ public constructor(canvas: HTMLCanvasElement) {
     a.connectionsNode = document.createTextNode("");
     a.latitudeNode = document.createTextNode("");
     a.longitudeNode = document.createTextNode("");
+    a.positionNode = document.createTextNode("");
     a.cityNode = document.createTextNode("");
     a.countryNode = document.createTextNode("");
 
@@ -51,6 +52,7 @@ public constructor(canvas: HTMLCanvasElement) {
     document.querySelector("#connections").appendChild(a.connectionsNode);
     document.querySelector("#latitude").appendChild(a.latitudeNode);
     document.querySelector("#longitude").appendChild(a.longitudeNode);
+    document.querySelector("#position").appendChild(a.positionNode);
     document.querySelector("#city").appendChild(a.cityNode);
     document.querySelector("#country").appendChild(a.countryNode);
     document.getElementById("overlayRight").style.visibility = "hidden";
@@ -70,6 +72,7 @@ async init(state: IState) {
     a.matView = mat4.create()
     a.matProjection = mat4.create()
     a.matViewProjection = mat4.create()
+    a.nodeScale = vec3.fromValues(1, 1, 1)
     this.initializeWebGl(a.gl)
     a.world = new CWorld(state, a.gl);
     a.world.initialize();
@@ -85,6 +88,7 @@ async initializeWebGl(gl: WebGL2RenderingContext) {
         gl.frontFace(gl.CW)
         gl.cullFace(gl.BACK)
         gl.enable(gl.CULL_FACE)
+        gl.lineWidth(4.0);
         initShadersGl()
         await this.initShowme()
     }

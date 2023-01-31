@@ -58,7 +58,16 @@
             font-family: monospace;
             padding: 1em;
         }
-    </style>
+        #instructions {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-family: monospace;
+            padding: 1em;
+        }
+        </style>
 </head>
 <body>
     <script type="module" src="main.js"></script>
@@ -76,8 +85,16 @@
             <div>Connections: <span id="connections"></span></div>
             <div>Latitude: <span id="latitude"></span></div>
             <div>Longitude: <span id="longitude"></span></div>
+            <div>Column Position: <span id="position"></span></div>
             <div>City: <span id="city"></span></div>
             <div>Country: <span id="country"></span></div>
+          </div>
+          <div id="instructions">
+            <div>Keyboard Commands <span id="keyboard"></span></div>
+            <div>&nbsp&nbsparrow keys: move left, right, up, down<span id="pan"></span></div>
+            <div>&nbsp&nbspi: zoom in <span id="zoomin"></span></div>
+            <div>&nbsp&nbspo: zoom out <span id="zoomout"></span></div>
+            <div>&nbsp&nbspc: toggle connections display<span id="toggleconn"></span></div>
           </div>
         <div id="asdf" style="justify-content: center; display: flex; position: absolute; flex-direction: column; left: 2px; height: 100%;">
         </div>
