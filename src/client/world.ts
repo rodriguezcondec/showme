@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
-import { IState, EShader } from './core'
+import { IState, EShader, INode, EColorMode } from './core'
 import { a } from './globals';
 import { CNode } from './node'
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
@@ -59,9 +59,15 @@ export class CWorld {
     private selectedId: number
     private white: vec4;
     private maxConnections: number
+    private minConnections: number
     private drawConnections: boolean
     private numConnectionsToDraw: number
     public connectionMode: boolean
+    private minBetweenness: number
+    private maxBetweenness: number
+    private minCloseness: number
+    private maxCloseness: number
+    public colorMode: EColorMode
 
     public constructor(istate: IState, gl: WebGL2RenderingContext) {
         this.istate = istate
@@ -75,9 +81,45 @@ export class CWorld {
         this.selectedId = -1
         this.white = vec4.fromValues(1, 1, 1, 1)
         this.maxConnections = 0;
+        this.minConnections = 10000;
         this.drawConnections = false
         this.numConnectionsToDraw = 0
-        this.connectionMode = true;
+        this.connectionMode = false;
+        this.minBetweenness = 100;
+        this.maxBetweenness = 0;
+        this.minCloseness = 100;
+        this.maxCloseness = 0;
+        this.colorMode = EColorMode.Random
+    }
+
+    private updateNodeColors() {
+        let n: number = 0;
+        for (let node of this.nodes) {
+            this.transformData.set(node.getCurrentColor(this.colorMode), n);
+            n += NODE_TRANSFORM_SIZE
+        }
+    }
+
+    public cycleColorMode() {
+        this.colorMode++;
+        if (this.colorMode == EColorMode.Last) {
+            this.colorMode = EColorMode.Random;
+        }
+        switch (this.colorMode) {
+            case EColorMode.Random:
+                a.colorModeNode.nodeValue = 'random'
+                break;
+            case EColorMode.Between:
+                a.colorModeNode.nodeValue = 'betweenness'
+                break;
+            case EColorMode.Close:
+                a.colorModeNode.nodeValue = 'closeness'
+                break;
+            case EColorMode.Degree:
+                a.colorModeNode.nodeValue = 'degree'
+                break;
+            }
+        this.updateNodeColors();
     }
 
     public update() {
@@ -111,7 +153,8 @@ export class CWorld {
             a.longitudeNode.nodeValue = node.inode.geolocation.longitude.toFixed(4)
             a.cityNode.nodeValue = node.inode.geolocation.city
             a.countryNode.nodeValue = node.inode.geolocation.country
-            a.positionNode.nodeValue = node.inode.column_position.toString()
+            a.positionNode.nodeValue = node.inode.cell_position.toString()
+            a.heightNode.nodeValue = node.inode.cell_height.toString()
             document.getElementById("overlayRight").style.visibility = "visible";
         } else {
             document.getElementById("overlayRight").style.visibility = "hidden";
@@ -119,7 +162,7 @@ export class CWorld {
         if (id != this.selectedId) {
             if (this.selectedId != -1) {
                 // restore color
-                this.transformData.set(this.nodes[this.selectedId].color, this.selectedId*NODE_TRANSFORM_SIZE);
+                this.transformData.set(this.nodes[this.selectedId].getCurrentColor(this.colorMode), this.selectedId*NODE_TRANSFORM_SIZE);
             }
             if (id != -1) {
                 // set new selection to white
@@ -140,7 +183,7 @@ export class CWorld {
         this.transformData = new Float32Array(this.istate.agraph_length * NODE_TRANSFORM_SIZE);
         let n: number = 0;
         for (let node of this.nodes) {
-            this.transformData.set(node.color, n);
+            this.transformData.set(node.randomColor, n);
             this.transformData.set(node.metadata, n+4);
             this.transformData.set(node.idColor, n+8);
             this.transformData.set(node.matWorld, n+12);
@@ -169,7 +212,7 @@ export class CWorld {
         console.log('  num_connections : ', node.numConnections)
         for (let index of node.inode.connections) {
             let conn: CNode = this.nodes[index]
-            this.connectionData.set(conn.color, n);
+            this.connectionData.set(conn.randomColor, n);
             this.connectionData.set(node.position, n+4);
             let delta: vec3 = vec3.create()
             vec3.sub(delta, conn.position, node.position)
@@ -353,20 +396,78 @@ export class CWorld {
 
     }
 
+    private updateStats(inode: INode) {
+        if (inode.connections.length > this.maxConnections) {
+            this.maxConnections = inode.connections.length;
+        }
+        if (inode.connections.length < this.minConnections) {
+            this.minConnections = inode.connections.length;
+        }
+        if (inode.betweenness < this.minBetweenness) {
+            this.minBetweenness = inode.betweenness;
+        }
+        if (inode.betweenness > this.maxBetweenness) {
+            this.maxBetweenness = inode.betweenness;
+        }
+        if (inode.closeness < this.minCloseness) {
+            this.minCloseness = inode.closeness;
+        }
+        if (inode.closeness > this.maxCloseness) {
+            this.maxCloseness = inode.closeness;
+        }
+    }
+
+    private colorFromNormalizedValue(v: number) : vec4 {
+        if (v < 0.25) {
+            // blue -> cyan
+            v = v * 4;
+            return vec4.fromValues(0, v, 1, 1);
+        } else if (v < 0.5) {
+            // cyan -> green
+            v = (v-0.25) * 4;
+            return vec4.fromValues(0, 1, 1-v, 1);
+        } else if (v < 0.75) {
+            // green -> yellow
+            v = (v-0.50) * 4;
+            return vec4.fromValues(v, 1, 0, 1);
+        } else {
+            // yellow -> red
+            v = (v-0.75) * 4;
+            return vec4.fromValues(1, 1-v, 0, 1);
+        }
+    }
+
+    private setAuxColors() {
+        for (let node of this.nodes) {
+            let b = (node.inode.betweenness - this.minBetweenness) / (this.maxBetweenness - this.minBetweenness);
+            node.betweenColor = this.colorFromNormalizedValue(b);
+
+            let c =  (node.inode.closeness - this.minCloseness) / (this.maxCloseness - this.minCloseness);
+            node.closeColor = this.colorFromNormalizedValue(c);
+
+            let d =  (node.numConnections - this.minConnections) / (this.maxConnections - this.minConnections);
+            node.degreeColor = this.colorFromNormalizedValue(d);
+        }
+    }
+
     public async initialize() {
         console.log('world::initialize, num nodes: ' + this.istate.agraph_length);
         let gl = this.gl;
         let id = 0
-        this.maxConnections = 0;
         for (let inode of this.istate.nodes) {
-            if (inode.connections.length > this.maxConnections) {
-                this.maxConnections = inode.connections.length
-            }
             let node = new CNode(inode, id)
             this.nodes.push(node);
             id++
         }
 
+        for (let inode of this.istate.nodes) {
+            this.updateStats(inode);
+        }
+        console.log('minBetweenness: ', this.minBetweenness);
+        console.log('maxBetweenness: ', this.maxBetweenness);
+        console.log('minCloseness: ', this.minCloseness);
+        console.log('maxCloseness: ', this.maxCloseness);
+        this.setAuxColors()
         await this.initTexturesGl()
         this.initNodesGl()
         this.initPickerGl()

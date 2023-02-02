@@ -30,6 +30,9 @@ export class CShowme {
             if (id == EKeyId.ToggleConnection && a.world) {
                 a.world.connectionMode = !a.world.connectionMode
             }
+            if (id == EKeyId.ColorMode && a.world) {
+                a.world.cycleColorMode();
+            }
             let action: IKeyAction = {
                 id: id,
                 timestamp: Date.now(),

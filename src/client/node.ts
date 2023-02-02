@@ -1,13 +1,16 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
-import { INode, WORLD_WIDTH, WORLD_HEIGHT } from './core'
+import { INode, WORLD_WIDTH, WORLD_HEIGHT, EColorMode } from './core'
 import { a } from './globals'
 import { mat4, vec3, vec4 } from 'gl-matrix'
 import { idToColor, randomColor } from './util'
 
 export class CNode {
     public inode: INode
-    public color: vec4
+    public randomColor: vec4
+    public betweenColor: vec4
+    public closeColor: vec4
+    public degreeColor: vec4
     public idColor: vec4
     public id: number
     public metadata: vec4
@@ -39,27 +42,39 @@ export class CNode {
         this.updateMatrix()
     }
     public setRotationX(x: number) {
-        this.rotation[0] = x
-        this.updateMatrix()
+        this.rotation[0] = x;
+        this.updateMatrix();
     }
     public getRotationZ() : number {
-        return this.rotation[2]
+        return this.rotation[2];
     }
     public getRotationX() : number {
-        return this.rotation[0]
+        return this.rotation[0];
+    }
+
+    public getCurrentColor(colorMode: EColorMode) : vec4 {
+        if (colorMode == EColorMode.Random) {
+            return this.randomColor;
+        } else if (colorMode == EColorMode.Between) {
+            return this.betweenColor;
+        } else if (colorMode == EColorMode.Degree) {
+            return this.degreeColor;
+        } else {
+            return this.closeColor;
+        }
     }
 
     public updateOverlayUniformsGl(proj: mat4, view: mat4) {
-        this.updateMatrix()
-        mat4.multiply(this.matMV, view, this.matWorld)
-        mat4.multiply(this.matMVP, proj, this.matMV)
+        this.updateMatrix();
+        mat4.multiply(this.matMV, view, this.matWorld);
+        mat4.multiply(this.matMVP, proj, this.matMV);
     }
 
     public initializePosition(isLocalHost: boolean) {
-        const zScale = 0.8;
+        const zScale = 0.4;
         let x: number = (this.inode.geolocation.longitude + 180) / 360;
         let y: number = (this.inode.geolocation.latitude + 90) / 180;
-        let z: number = this.inode.column_position*zScale;
+        let z: number = this.inode.cell_position*zScale;
 
         let longitude = x - 0.5;
         let latitude = y - 0.5;
@@ -67,8 +82,6 @@ export class CNode {
         // https://en.wikipedia.org/wiki/Wagner_VI_projection
         // shader does inverse
         let transformedX = 0.5 + longitude * Math.sqrt(1 - 3*latitude*latitude);
-
-
         this.setPosition(
             transformedX * WORLD_WIDTH - WORLD_WIDTH/2,
             y * WORLD_HEIGHT - WORLD_HEIGHT/2,
@@ -82,21 +95,21 @@ export class CNode {
         this.numConnections = this.inode.connections.length
         let isLocalHost = inode.ip == "127.0.0.1"
 
-        this.metadata = vec4.create()
-        this.color = isLocalHost ? vec4.fromValues(1.0, 1.0, 1.0, 1) : randomColor()
-        this.idColor = idToColor(id)
-        this.scale = isLocalHost ? 4 : 1
+        this.metadata = vec4.create();
+        this.randomColor = isLocalHost ? vec4.fromValues(1.0, 1.0, 1.0, 1) : randomColor();
+        this.idColor = idToColor(id);
+        this.scale = isLocalHost ? 4 : 1;
         if (isLocalHost) {
-            this.inode.geolocation.city = 'n/a'
-            this.inode.geolocation.country = 'localhost'
+            this.inode.geolocation.city = 'n/a';
+            this.inode.geolocation.country = 'localhost';
         }
 
-        this.position = vec3.create()
-        this.center = vec3.create()
-        this.rotation = vec3.create()
-        this.matWorld = mat4.create()
-        this.matMV = mat4.create()
-        this.matMVP = mat4.create()
+        this.position = vec3.create();
+        this.center = vec3.create();
+        this.rotation = vec3.create();
+        this.matWorld = mat4.create();
+        this.matMV = mat4.create();
+        this.matMVP = mat4.create();
 
         // metadata = A-B-C-D
         //   Aggregate connections

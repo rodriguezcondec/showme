@@ -11,6 +11,14 @@ export enum EShader {
     Last
 }
 
+export enum EColorMode {
+    Random = 0,
+    Between,
+    Close,
+    Degree,
+    Last
+}
+
 export interface ICamera {
     position: [number, number, number]
 }
@@ -27,7 +35,8 @@ export enum EKeyId {
     ArrowDown = 'down',
     ZoomIn = 'in',
     ZoomOut = 'out',
-    ToggleConnection = 'conn'
+    ToggleConnection = 'conn',
+    ColorMode = 'colormode'
 }
 
 export interface IKeyAction {
@@ -41,8 +50,8 @@ export interface INode {
     ip: string
     betweenness: number
     closeness: number
-    column_position: number
-    column_size: number
+    cell_position: number
+    cell_height: number
     connections: number []
     geolocation: {
         ip: string

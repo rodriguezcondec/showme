@@ -28,7 +28,9 @@ export interface IGlobalInfo {
     longitudeNode: Text,
     cityNode: Text,
     countryNode: Text,
-    positionNode: Text
+    positionNode: Text,
+    heightNode: Text
+    colorModeNode: Text,
 }
 
 export let a : IGlobalInfo= {
@@ -55,6 +57,8 @@ export let a : IGlobalInfo= {
     betweennessNode: null,
     closenessNode: null,
     connectionsNode: null,
-    positionNode: null
+    positionNode: null,
+    heightNode: null,
+    colorModeNode: null
 } 
 

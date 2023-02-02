@@ -96,6 +96,8 @@ export class CMousekeyCtlr {
             } else if (evt.code == 'ArrowRight') {
                 this.a.showme.onAction(true, EKeyId.ArrowRight)
             } else if (evt.code == 'KeyC') {
+                this.a.showme.onAction(true, EKeyId.ColorMode)
+            } else if (evt.code == 'KeyN') {
                 this.a.showme.onAction(true, EKeyId.ToggleConnection)
             } else if (evt.code == 'KeyI') {
                 this.a.showme.onAction(true, EKeyId.ZoomIn)

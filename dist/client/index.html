@@ -75,8 +75,9 @@
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
         <canvas id="bancan" margin=0px></canvas>
         <div id="overlayLeft">
-            <div>Time: <span id="time"></span></div>
-            <div>&nbspFPS: <span id="fps"></span></div>
+            <div>&nbspTime: <span id="time"></span></div>
+            <div>&nbsp&nbspFPS: <span id="fps"></span></div>
+            <div>Color: <span id="colormode"></span></div>
           </div>
           <div id="overlayRight">
             <div>IP: <span id="ip"></span></div>
@@ -85,7 +86,8 @@
             <div>Connections: <span id="connections"></span></div>
             <div>Latitude: <span id="latitude"></span></div>
             <div>Longitude: <span id="longitude"></span></div>
-            <div>Column Position: <span id="position"></span></div>
+            <div>Cell Position: <span id="position"></span></div>
+            <div>Cell Height: <span id="height"></span></div>
             <div>City: <span id="city"></span></div>
             <div>Country: <span id="country"></span></div>
           </div>
@@ -94,7 +96,8 @@
             <div>&nbsp&nbsparrow keys: move left, right, up, down<span id="pan"></span></div>
             <div>&nbsp&nbspi: zoom in <span id="zoomin"></span></div>
             <div>&nbsp&nbspo: zoom out <span id="zoomout"></span></div>
-            <div>&nbsp&nbspc: toggle connections display<span id="toggleconn"></span></div>
+            <div>&nbsp&nbspc: cycle color mode<span id="colormode"></span></div>
+            <div>&nbsp&nbspn: toggle connections display<span id="toggleconn"></span></div>
           </div>
         <div id="asdf" style="justify-content: center; display: flex; position: absolute; flex-direction: column; left: 2px; height: 100%;">
         </div>

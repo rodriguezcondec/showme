@@ -40,8 +40,12 @@ public constructor(canvas: HTMLCanvasElement) {
     a.latitudeNode = document.createTextNode("");
     a.longitudeNode = document.createTextNode("");
     a.positionNode = document.createTextNode("");
+    a.heightNode = document.createTextNode("");
     a.cityNode = document.createTextNode("");
     a.countryNode = document.createTextNode("");
+    a.colorModeNode = document.createTextNode("");
+
+    a.colorModeNode.nodeValue = 'random'
 
     // Add those text nodes where they need to go
     document.querySelector("#time").appendChild(a.timeNode);
@@ -53,8 +57,10 @@ public constructor(canvas: HTMLCanvasElement) {
     document.querySelector("#latitude").appendChild(a.latitudeNode);
     document.querySelector("#longitude").appendChild(a.longitudeNode);
     document.querySelector("#position").appendChild(a.positionNode);
+    document.querySelector("#height").appendChild(a.heightNode);
     document.querySelector("#city").appendChild(a.cityNode);
     document.querySelector("#country").appendChild(a.countryNode);
+    document.querySelector("#colormode").appendChild(a.colorModeNode);
     document.getElementById("overlayRight").style.visibility = "hidden";
 
     let self = this
