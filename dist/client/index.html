@@ -67,6 +67,17 @@
             font-family: monospace;
             padding: 1em;
         }
+        #gradient {
+            position:absolute;
+            bottom: 5px;
+            left: 50%; 
+            transform: translate(-50%, 0);
+            margin: 0px 0px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-family: monospace;
+            padding: 0.3em;
+        }
         </style>
 </head>
 <body>
@@ -97,7 +108,13 @@
             <div>&nbsp&nbspi: zoom in <span id="zoomin"></span></div>
             <div>&nbsp&nbspo: zoom out <span id="zoomout"></span></div>
             <div>&nbsp&nbspc: cycle color mode<span id="colormode"></span></div>
+            <div>&nbsp&nbspf: toggle FPS display<span id="togglefps"></span></div>
+            <div>&nbsp&nbspg: toggle gradient display<span id="togglefps"></span></div>
             <div>&nbsp&nbspn: toggle connections display<span id="toggleconn"></span></div>
+            <div>&nbsp&nbspx: toggle command overlay<span id="command"></span></div>
+          </div>
+          <div id="gradient">
+            <div>0  DEGREE  433 <span id="legend"></span></div>
           </div>
         <div id="asdf" style="justify-content: center; display: flex; position: absolute; flex-direction: column; left: 2px; height: 100%;">
         </div>

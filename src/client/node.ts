@@ -1,33 +1,31 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
 import { INode, WORLD_WIDTH, WORLD_HEIGHT, EColorMode } from './core'
-import { a } from './globals'
 import { mat4, vec3, vec4 } from 'gl-matrix'
 import { idToColor, randomColor } from './util'
+import { PCamera } from './camera'
 
 export class CNode {
-    public inode: INode
-    public randomColor: vec4
-    public betweenColor: vec4
-    public closeColor: vec4
-    public degreeColor: vec4
-    public idColor: vec4
-    public id: number
-    public metadata: vec4
-    public info: vec4
-    public position: vec3
-    public center: vec3
-    public rotation: vec3
-    public matWorld: mat4
-    public matMV: mat4
-    public matMVP: mat4
-    public scale: number
-    public numConnections: number
-
+    public inode: INode;
+    public randomColor: vec4;
+    public betweenColor: vec4;
+    public closeColor: vec4;
+    public degreeColor: vec4;
+    public idColor: vec4;
+    public id: number;
+    public metadata: vec4;
+    public info: vec4;
+    public position: vec3;
+    public rotation: vec3;
+    public matWorld: mat4;
+    public matMV: mat4;
+    public matMVP: mat4;
+    public scale: number;
+    public numConnections: number;
+    private camera: PCamera;
 
     public release() {
         this.position = null
-        this.center = null
         this.rotation = null
         this.matWorld = null
         this.matMV = null
@@ -89,11 +87,12 @@ export class CNode {
         )
     }
 
-    public constructor(inode: INode, id: number) {
+    public constructor(inode: INode, id: number, camera: PCamera) {
         this.inode = inode;
         this.id = id;
-        this.numConnections = this.inode.connections.length
-        let isLocalHost = inode.ip == "127.0.0.1"
+        this.camera = camera;
+        this.numConnections = this.inode.connections.length;
+        let isLocalHost = inode.ip == "127.0.0.1";
 
         this.metadata = vec4.create();
         this.randomColor = isLocalHost ? vec4.fromValues(1.0, 1.0, 1.0, 1) : randomColor();
@@ -105,7 +104,7 @@ export class CNode {
         }
 
         this.position = vec3.create();
-        this.center = vec3.create();
+        // this.center = vec3.create();
         this.rotation = vec3.create();
         this.matWorld = mat4.create();
         this.matMV = mat4.create();
@@ -125,24 +124,23 @@ export class CNode {
     }
 
     public setPosition(x: number, y: number, z: number) {
-        this.position[0] = x
-        this.position[1] = y
-        this.position[2] = z
-        this.updateMatrix()
+        this.position[0] = x;
+        this.position[1] = y;
+        this.position[2] = z;
+        this.updateMatrix();
     }
 
     public updateMatrix() {
-        let ry = mat4.create()
-        let t = mat4.create()
-        mat4.identity(this.matWorld)
-        mat4.scale(this.matWorld, this.matWorld, a.nodeScale)
-        mat4.scale(this.matWorld, this.matWorld, vec3.fromValues(this.scale,this.scale, this.scale))
-        mat4.translate(this.matWorld, this.matWorld, vec3.fromValues(-this.center[0], -this.center[1], 0))
-        mat4.fromYRotation(ry, this.rotation[1])
-        mat4.multiply(this.matWorld, ry, this.matWorld)
-        mat4.fromTranslation(t, this.position)
-        mat4.multiply(this.matWorld, t, this.matWorld)
-        mat4.multiply(this.matMV, a.matView, this.matWorld)
-        mat4.multiply(this.matMVP, a.matProjection, this.matMV)
+        let ry = mat4.create();
+        let t = mat4.create();
+        mat4.identity(this.matWorld);
+        mat4.scale(this.matWorld, this.matWorld, this.camera.nodeScale);
+        mat4.scale(this.matWorld, this.matWorld, vec3.fromValues(this.scale,this.scale, this.scale));
+        mat4.fromYRotation(ry, this.rotation[1]);
+        mat4.multiply(this.matWorld, ry, this.matWorld);
+        mat4.fromTranslation(t, this.position);
+        mat4.multiply(this.matWorld, t, this.matWorld);
+        mat4.multiply(this.matMV, this.camera.matView, this.matWorld);
+        mat4.multiply(this.matMVP, this.camera.matProjection, this.matMV);
     }
 }

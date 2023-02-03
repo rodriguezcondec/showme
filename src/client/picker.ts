@@ -1,25 +1,24 @@
 
 import { colorToId } from './util'
-import { a } from './globals'
 
 const PICKER_TEXTURE_SIZE: number = 2048;
 
 export class CPicker {
-    private gl: WebGL2RenderingContext
-    private fb: WebGLFramebuffer
-    public renderTarget: WebGLTexture
-    private pixelBuffer: Uint8Array
-    textureWidth: number
-    textureHeight: number
-    x: number
-    y: number
-    public constructor() {
-        this.gl = a.gl
-        this.renderTarget = null
+    private gl: WebGL2RenderingContext;
+    private fb: WebGLFramebuffer;
+    public renderTarget: WebGLTexture;
+    private pixelBuffer: Uint8Array;
+    textureWidth: number;
+    textureHeight: number;
+    x: number;
+    y: number;
+    public constructor(gl: WebGL2RenderingContext) {
+        this.gl = gl;
+        this.renderTarget = null;
         this.pixelBuffer = new Uint8Array(4);
-        this.textureWidth = PICKER_TEXTURE_SIZE
-        this.textureHeight = PICKER_TEXTURE_SIZE
-        this.initialize()
+        this.textureWidth = PICKER_TEXTURE_SIZE;
+        this.textureHeight = PICKER_TEXTURE_SIZE;
+        this.initialize();
     }
 
     private initialize() {
@@ -53,7 +52,7 @@ export class CPicker {
     public preRender(x: number, y: number) {
         this.x = x;
         this.y = y;
-        let gl = this.gl
+        let gl = this.gl;
         gl.bindFramebuffer(gl.FRAMEBUFFER, this.fb);
         gl.bindTexture(gl.TEXTURE_2D, this.renderTarget);
         gl.viewport(0, 0, this.textureWidth, this.textureHeight);
@@ -61,22 +60,23 @@ export class CPicker {
     }
 
     public postRender() : number {
-        let gl = this.gl
-        let offsetX = Math.floor(this.x * this.textureWidth)
-        let offsetY = Math.floor(this.y * this.textureWidth)
-        this.readTarget(gl, offsetX, offsetY)
+        let gl = this.gl;
+        let offsetX = Math.floor(this.x * this.textureWidth);
+        let offsetY = Math.floor(this.y * this.textureWidth);
+        this.readTarget(gl, offsetX, offsetY);
 
         const color =
           (this.pixelBuffer[0] << 16) |
           (this.pixelBuffer[1] <<  8) |
           (this.pixelBuffer[2]      );
 
-        let id = colorToId(color)
+        let id = colorToId(color);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        return id
+        return id;
     }
 
+    // read a single BGRA pixel from the render target
     private readTarget(gl: WebGL2RenderingContext, offsetX : number, offsetY : number) {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.renderTarget);

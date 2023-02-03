@@ -86,6 +86,5 @@ export function icosaGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
     gl.bindBuffer(gl.ARRAY_BUFFER, icosaBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, icosaData, gl.STATIC_DRAW);
     return icosaBuffer;
-
 }
 

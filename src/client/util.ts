@@ -1,50 +1,35 @@
 
-import { Console } from 'console'
-import { vec2, vec3, vec4 } from 'gl-matrix'
+import { vec3, vec4 } from 'gl-matrix'
 
 export function idToColor(id: number) : vec4 {
-    let red = (id>>12) * 4 + 2
-    let green = ((id >> 6) & 63) * 4 + 2
-    let blue = (id & 63) * 4 + 2
-    let result = vec4.fromValues(red/255, green/255, blue/255, 1)
-    return result
-}
-
-export function channelToColor(channel: number) : vec4 {
-    let blue = ((channel & 1) != 0) ? 1 : 0
-    let green = ((channel & 2) != 0) ? 1 : 0
-    let red = ((channel & 4) != 0) ? 1 : 0
-    let result = vec4.fromValues(red, green, blue, 1)
+    let red = (id>>12) * 4 + 2;
+    let green = ((id >> 6) & 63) * 4 + 2;
+    let blue = (id & 63) * 4 + 2;
+    let result = vec4.fromValues(red/255, green/255, blue/255, 1);
     return result
 }
 
 export function randomColor() : vec4 {
-    let channel = Math.floor(Math.random() * 3)
-    let red = Math.random()
-    let blue = Math.random()
-    let green = Math.random()
-    let result = vec4.fromValues(red, green, blue, 1)
-    return result
-}
-
-export function align8(a: number) : number {
-    let result = ((a + 15 ) & 0xfffffff0)
+    let red = Math.random();
+    let blue = Math.random();
+    let green = Math.random();
+    let result = vec4.fromValues(red, green, blue, 1);
     return result
 }
 
 export function colorToId(color: number) : number {
     if (!color) {
-        return -1
+        return -1;
     }
     let r = (color >> 16) & 255;
     let g = (color >> 8) & 255;
     let b = color & 255;
-    let red = Math.floor(r / 4)
-    let green = Math.floor(g / 4)
-    let blue = Math.floor(b / 4)
-    let id = red * 4096 + green * 64 + blue
-    console.log('id ', id)
-    return id
+    let red = Math.floor(r / 4);
+    let green = Math.floor(g / 4);
+    let blue = Math.floor(b / 4);
+    let id = red * 4096 + green * 64 + blue;
+    console.log('id ', id);
+    return id;
 }
 
 export async function loadTexture(gl: WebGL2RenderingContext, url: string) : Promise<WebGLTexture> {
@@ -125,8 +110,8 @@ function isPowerOf2(value) {
     return (value & (value - 1)) == 0;
 }
 
-const maxLog = 7.6
-const minLog = 4.1
+const maxLog = 7.6;
+const minLog = 4.1;
 const deltaLog = maxLog - minLog
 export function zoomLogToScale(zoomLogarithm: number) : vec3 {
     let scale = 1;

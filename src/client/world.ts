@@ -1,12 +1,13 @@
 /// <reference path="../../node_modules/@webgpu/types/dist/index.d.ts" />
 
 import { IState, EShader, INode, EColorMode } from './core'
-import { a } from './globals';
 import { CNode } from './node'
 import { vec2, vec3, vec4, mat4 } from 'gl-matrix'
 import { icosaGeometry } from './geomicosa'
+import { gradientGeometry } from './geomgradient'
 import { lineGeometry } from './geomline'
 import { CPicker } from './picker';
+import { PCamera } from './camera';
 import { initWorldMap } from './worldmap'
 import { glShaders } from './shaders';
 import { createRandomTexture, loadTexture } from './util';
@@ -17,80 +18,152 @@ const CONNECTION_TRANSFORM_SIZE: number = 12;
 
 
 export class CWorld {
-    public istate: IState
-    public nodes: CNode []
-    public  gl: WebGL2RenderingContext
-    private noiseTexture: WebGLTexture
-    private worldMapTexture: WebGLTexture
-    private picker: CPicker
+    public istate: IState;
+    public nodes: CNode [];
+    public  gl: WebGL2RenderingContext;
+    private noiseTexture: WebGLTexture;
+    private worldMapTexture: WebGLTexture;
+    private gradientTexture: WebGLTexture;
+    private picker: CPicker;
 
-    public topTexture: WebGLTexture
-    public inDrag: boolean
-    public inTap: boolean
-    public inDragStartTime: number
-    public mouseIsOut: boolean
-    public inSwipe: boolean
-    public inTouchX: number
-    public inTouchY: number
-    public inTouchTime: number
-    private icosaGeometry: WebGLBuffer
-    private worldMapGeometry: WebGLBuffer
-    private lineGeometry: WebGLBuffer
-    private transformBuffer: WebGLBuffer
-    private pickerBuffer: WebGLBuffer
-    private connectionBuffer: WebGLBuffer
-    private transformData: Float32Array
-    private connectionData: Float32Array
-    private icosaVao: WebGLVertexArrayObject
-    private pickerVao: WebGLVertexArrayObject
-    private worldMapVao: WebGLVertexArrayObject
-    private connectionVao: WebGLVertexArrayObject
-    public icosaVPLoc: WebGLUniformLocation
-    public worldMapVPLoc: WebGLUniformLocation
-    public connectionVPLoc: WebGLUniformLocation
-    public paramsLoc: WebGLUniformLocation
-    public noiseTextureLoc: WebGLUniformLocation
-    public worldMapTextureLoc: WebGLUniformLocation
-    public pickerVPLoc: WebGLUniformLocation
-    public pickerParamsLoc: WebGLUniformLocation
-    public pickerNoiseTextureLoc: WebGLUniformLocation
-    private startTime: number
-    private params: vec4
-    private selectedId: number
-    private white: vec4;
-    private maxConnections: number
-    private minConnections: number
-    private drawConnections: boolean
-    private numConnectionsToDraw: number
-    public connectionMode: boolean
-    private minBetweenness: number
-    private maxBetweenness: number
-    private minCloseness: number
-    private maxCloseness: number
-    public colorMode: EColorMode
+    public topTexture: WebGLTexture;
+    public inDrag: boolean;
+    public inTap: boolean;
+    public inDragStartTime: number;
+    public mouseIsOut: boolean;
+    public inSwipe: boolean;
+    public inTouchX: number;
+    public inTouchY: number;
+    public inTouchTime: number;
+    private icosaGeometry: WebGLBuffer;
+    private gradientGeometry: WebGLBuffer;
+    private worldMapGeometry: WebGLBuffer;
+    private lineGeometry: WebGLBuffer;
+    private transformBuffer: WebGLBuffer;
+    private pickerBuffer: WebGLBuffer;
+    private connectionBuffer: WebGLBuffer;
+    private transformData: Float32Array;
+    private connectionData: Float32Array;
+    private icosaVao: WebGLVertexArrayObject;
+    private pickerVao: WebGLVertexArrayObject;
+    private worldMapVao: WebGLVertexArrayObject;
+    private gradientVao: WebGLVertexArrayObject;
+    private connectionVao: WebGLVertexArrayObject;
+    public icosaVPLoc: WebGLUniformLocation;
+    public worldMapVPLoc: WebGLUniformLocation;
+    public connectionVPLoc: WebGLUniformLocation;
+    public paramsLoc: WebGLUniformLocation;
+    public noiseTextureLoc: WebGLUniformLocation;
+    public worldMapTextureLoc: WebGLUniformLocation;
+    public gradientTextureLoc: WebGLUniformLocation;
+    public pickerVPLoc: WebGLUniformLocation;
+    public pickerParamsLoc: WebGLUniformLocation;
+    public pickerNoiseTextureLoc: WebGLUniformLocation;
+    private startTime: number;
+    private params: vec4;
+    private selectedId: number;
+    private white: vec4;;
+    private maxConnections: number;
+    private minConnections: number;
+    private drawConnections: boolean;
+    private numConnectionsToDraw: number;
+    public connectionMode: boolean;
+    public displayCommand: boolean;
+    public displayFps: boolean;
+    public displayGradient: boolean;
+    private minBetweenness: number;
+    private maxBetweenness: number;
+    private minCloseness: number;
+    private maxCloseness: number;
+    public colorMode: EColorMode;
+    private canvas: HTMLCanvasElement;
+    private camera: PCamera;
+    private betweennessDescription: string;
+    private closenessDescription: string;
+    private degreeDescription: string;
 
-    public constructor(istate: IState, gl: WebGL2RenderingContext) {
-        this.istate = istate
-        this.gl = gl
-        this.inDrag = false
-        this.mouseIsOut = true
-        this.nodes = new Array()
-        this.startTime = Date.now()
-        this.params = vec4.create()
-        this.picker = new CPicker()
-        this.selectedId = -1
-        this.white = vec4.fromValues(1, 1, 1, 1)
+    public timeNode: Text;
+    public fpsNode: Text;
+    public ipNode: Text;
+    public betweennessNode: Text;
+    public closenessNode: Text;
+    public connectionsNode: Text;
+    public latitudeNode: Text;
+    public longitudeNode: Text;
+    public cityNode: Text;
+    public countryNode: Text;
+    public positionNode: Text;
+    public heightNode: Text;
+    public colorModeNode: Text;
+    public gradientNode: Text;
+
+
+    private initTextNodes() {
+
+        // Create text nodes to save some time for the browser.
+        this.timeNode = document.createTextNode("");
+        this.fpsNode = document.createTextNode("");
+        this.ipNode = document.createTextNode("");
+        this.betweennessNode = document.createTextNode("");
+        this.closenessNode = document.createTextNode("");
+        this.connectionsNode = document.createTextNode("");
+        this.latitudeNode = document.createTextNode("");
+        this.longitudeNode = document.createTextNode("");
+        this.positionNode = document.createTextNode("");
+        this.heightNode = document.createTextNode("");
+        this.cityNode = document.createTextNode("");
+        this.countryNode = document.createTextNode("");
+        this.colorModeNode = document.createTextNode("");
+        this.gradientNode = document.createTextNode("");
+
+        this.updateColorDisplay();
+
+        // Add those text nodes where they need to go
+        document.querySelector("#time").appendChild(this.timeNode);
+        document.querySelector("#fps").appendChild(this.fpsNode);
+        document.querySelector("#ip").appendChild(this.ipNode);
+        document.querySelector("#betweenness").appendChild(this.betweennessNode);
+        document.querySelector("#closeness").appendChild(this.closenessNode);
+        document.querySelector("#connections").appendChild(this.connectionsNode);
+        document.querySelector("#latitude").appendChild(this.latitudeNode);
+        document.querySelector("#longitude").appendChild(this.longitudeNode);
+        document.querySelector("#position").appendChild(this.positionNode);
+        document.querySelector("#height").appendChild(this.heightNode);
+        document.querySelector("#city").appendChild(this.cityNode);
+        document.querySelector("#country").appendChild(this.countryNode);
+        document.querySelector("#colormode").appendChild(this.colorModeNode);
+        document.querySelector("#gradient").appendChild(this.gradientNode);
+        document.getElementById("overlayRight").style.visibility = "hidden";
+    }
+
+    public constructor(istate: IState, gl: WebGL2RenderingContext, canvas: HTMLCanvasElement, camera: PCamera) {
+        this.istate = istate;
+        this.canvas = canvas;
+        this.camera = camera;
+        this.gl = gl;
+        this.inDrag = false;
+        this.mouseIsOut = true;
+        this.nodes = new Array();
+        this.startTime = Date.now();
+        this.params = vec4.create();
+        this.picker = new CPicker(gl);
+        this.selectedId = -1;
+        this.white = vec4.fromValues(1, 1, 1, 1);
         this.maxConnections = 0;
         this.minConnections = 10000;
-        this.drawConnections = false
-        this.numConnectionsToDraw = 0
+        this.drawConnections = false;
+        this.numConnectionsToDraw = 0;
         this.connectionMode = false;
+        this.displayCommand = true;
+        this.displayFps = true;
+        this.displayGradient = true;
         this.minBetweenness = 100;
         this.maxBetweenness = 0;
         this.minCloseness = 100;
         this.maxCloseness = 0;
         this.colorMode = EColorMode.Random
-    }
+        this.initTextNodes();
+    };
 
     private updateNodeColors() {
         let n: number = 0;
@@ -100,26 +173,37 @@ export class CWorld {
         }
     }
 
+    public updateColorDisplay() {
+        switch (this.colorMode) {
+            case EColorMode.Random:
+                this.colorModeNode.nodeValue = 'random'
+                break;
+            case EColorMode.Between:
+                this.colorModeNode.nodeValue = 'betweenness'
+                // this.gradientNode.nodeValue = this.betweennessDescription;
+                document.getElementById("gradient").textContent = this.betweennessDescription;
+                break;
+            case EColorMode.Close:
+                this.colorModeNode.nodeValue = 'closeness'
+                // this.gradientNode.nodeValue = this.closenessDescription;
+                document.getElementById("gradient").textContent = this.closenessDescription;
+                break;
+            case EColorMode.Degree:
+                this.colorModeNode.nodeValue = 'degree'
+                // this.gradientNode.nodeValue = this.degreeDescription;
+                document.getElementById("gradient").textContent = this.degreeDescription;
+                break;
+        }
+        this.updateNodeColors();
+        document.getElementById("gradient").style.visibility = this.colorMode != EColorMode.Random && this.displayGradient ? "visible" : "hidden";
+    }
+
     public cycleColorMode() {
         this.colorMode++;
         if (this.colorMode == EColorMode.Last) {
             this.colorMode = EColorMode.Random;
         }
-        switch (this.colorMode) {
-            case EColorMode.Random:
-                a.colorModeNode.nodeValue = 'random'
-                break;
-            case EColorMode.Between:
-                a.colorModeNode.nodeValue = 'betweenness'
-                break;
-            case EColorMode.Close:
-                a.colorModeNode.nodeValue = 'closeness'
-                break;
-            case EColorMode.Degree:
-                a.colorModeNode.nodeValue = 'degree'
-                break;
-            }
-        this.updateNodeColors();
+        this.updateColorDisplay();
     }
 
     public update() {
@@ -128,33 +212,33 @@ export class CWorld {
         }
         // let now = Date.now();
         for (let node of this.nodes) {
-            node.incRotationY(2 * Math.PI / 180 * node.numConnections / 400)
-            node.updateMatrix()
+            node.incRotationY(2 * Math.PI / 180 * node.numConnections / 400);
+            node.updateMatrix();
         }
-        this.updateTransformData()
+        this.updateTransformData();
         // let done = Date.now();
         // console.log(`now ${now} done ${done} delta ${done-now}`)
     }
 
     public handleClick(x: number, y: number) {
         console.log(`world: handleClick: ${x}, ${y}`)
-        let screenCoords : vec2 = vec2.fromValues(x/a.canvas.width, 1 - y/a.canvas.height )
+        let screenCoords : vec2 = vec2.fromValues(x/this.canvas.width, 1 - y/this.canvas.height )
         this.picker.preRender(screenCoords[0], screenCoords[1])
         this.renderPicker();
         let id = this.picker.postRender();
         console.log(`  got id ${id}`)
         if (id >= 0) {
             let node = this.nodes[id];
-            a.ipNode.nodeValue = node.inode.ip
-            a.betweennessNode.nodeValue = node.inode.betweenness.toFixed(6)
-            a.closenessNode.nodeValue = node.inode.closeness.toFixed(6)
-            a.connectionsNode.nodeValue = node.numConnections.toString()
-            a.latitudeNode.nodeValue = node.inode.geolocation.latitude.toFixed(4)
-            a.longitudeNode.nodeValue = node.inode.geolocation.longitude.toFixed(4)
-            a.cityNode.nodeValue = node.inode.geolocation.city
-            a.countryNode.nodeValue = node.inode.geolocation.country
-            a.positionNode.nodeValue = node.inode.cell_position.toString()
-            a.heightNode.nodeValue = node.inode.cell_height.toString()
+            this.ipNode.nodeValue = node.inode.ip;
+            this.betweennessNode.nodeValue = node.inode.betweenness.toFixed(6);
+            this.closenessNode.nodeValue = node.inode.closeness.toFixed(6);
+            this.connectionsNode.nodeValue = node.numConnections.toString();
+            this.latitudeNode.nodeValue = node.inode.geolocation.latitude.toFixed(4);
+            this.longitudeNode.nodeValue = node.inode.geolocation.longitude.toFixed(4);
+            this.cityNode.nodeValue = node.inode.geolocation.city;
+            this.countryNode.nodeValue = node.inode.geolocation.country;
+            this.positionNode.nodeValue = node.inode.cell_position.toString();
+            this.heightNode.nodeValue = node.inode.cell_height.toString();
             document.getElementById("overlayRight").style.visibility = "visible";
         } else {
             document.getElementById("overlayRight").style.visibility = "hidden";
@@ -168,9 +252,9 @@ export class CWorld {
                 // set new selection to white
                 let node: CNode = this.nodes[id];
                 this.transformData.set(this.white, id*NODE_TRANSFORM_SIZE);
-                this.setConnectionData(node)
+                this.setConnectionData(node);
                 this.numConnectionsToDraw = node.numConnections;
-                this.drawConnections = true
+                this.drawConnections = true;
             } else {
                 this.drawConnections = false;
             }
@@ -179,7 +263,7 @@ export class CWorld {
     }
 
     private initTransformData() {
-        let gl = this.gl
+        let gl = this.gl;
         this.transformData = new Float32Array(this.istate.agraph_length * NODE_TRANSFORM_SIZE);
         let n: number = 0;
         for (let node of this.nodes) {
@@ -206,18 +290,18 @@ export class CWorld {
     }
 
     private setConnectionData(node: CNode) {
-        console.log('setConnectionData, node ', node.id)
-        let gl = this.gl
+        console.log('setConnectionData, node ', node.id);
+        let gl = this.gl;
         let n: number = 0;
-        console.log('  num_connections : ', node.numConnections)
+        console.log('  num_connections : ', node.numConnections);
         for (let index of node.inode.connections) {
-            let conn: CNode = this.nodes[index]
+            let conn: CNode = this.nodes[index];
             this.connectionData.set(conn.randomColor, n);
             this.connectionData.set(node.position, n+4);
-            let delta: vec3 = vec3.create()
-            vec3.sub(delta, conn.position, node.position)
+            let delta: vec3 = vec3.create();
+            vec3.sub(delta, conn.position, node.position);
             this.connectionData.set(delta, n+8);
-            n += 12
+            n += 12;
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, this.connectionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this.connectionData, gl.STATIC_DRAW);
@@ -346,6 +430,20 @@ export class CWorld {
         gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
     }
 
+    private initGradientGl() {
+        let gl = this.gl;
+        this.gradientTextureLoc = gl.getUniformLocation(glShaders[EShader.Gradient], 'u_gradientTexture');
+        this.gradientGeometry = gradientGeometry(gl)
+        this.gradientVao = gl.createVertexArray();
+        gl.bindVertexArray(this.gradientVao);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.gradientGeometry);
+        gl.enableVertexAttribArray(0);
+        gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 16, 0);
+        gl.enableVertexAttribArray(1);
+        gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 16, 8);
+    }
+
     initConnectionsGl() {
         let gl = this.gl;
         let positionLoc = gl.getAttribLocation(glShaders[EShader.Connection], 'a_position');
@@ -393,6 +491,7 @@ export class CWorld {
         } else {
             this.worldMapTexture = await loadTexture(gl, "data/Blue_Marble_NG_4k.jpeg");
         }
+        this.gradientTexture = await loadTexture(gl, "data/gradient.jpeg");
 
     }
 
@@ -450,36 +549,45 @@ export class CWorld {
         }
     }
 
+    private setDescriptions() {
+        this.betweennessDescription = 'MIN: ' + this.minBetweenness.toFixed(6) + ' ---- BETWEENNESS ---- MAX: ' + this.maxBetweenness.toFixed(6);
+        this.closenessDescription = 'MIN: ' + this.minCloseness.toFixed(4) +     ' ----- CLOSENESS ----- MAX: ' + this.maxCloseness.toFixed(4);
+        this.degreeDescription = 'MIN: ' + this.minConnections +                    ' ------- DEGREE ------ MAX: ' + this.maxConnections;
+        console.log(this.betweennessDescription);
+        console.log(this.closenessDescription);
+        console.log(this.degreeDescription);
+    
+    }
+
     public async initialize() {
         console.log('world::initialize, num nodes: ' + this.istate.agraph_length);
         let gl = this.gl;
-        let id = 0
+        let id = 0;
         for (let inode of this.istate.nodes) {
-            let node = new CNode(inode, id)
+            let node = new CNode(inode, id, this.camera)
             this.nodes.push(node);
-            id++
+            id++;
         }
 
         for (let inode of this.istate.nodes) {
             this.updateStats(inode);
         }
-        console.log('minBetweenness: ', this.minBetweenness);
-        console.log('maxBetweenness: ', this.maxBetweenness);
-        console.log('minCloseness: ', this.minCloseness);
-        console.log('maxCloseness: ', this.maxCloseness);
-        this.setAuxColors()
-        await this.initTexturesGl()
-        this.initNodesGl()
-        this.initPickerGl()
-        this.initWorldMapGl()
-        this.initConnectionsGl()
+
+        this.setDescriptions();
+        this.setAuxColors();
+        await this.initTexturesGl();
+        this.initNodesGl();
+        this.initPickerGl();
+        this.initWorldMapGl();
+        this.initConnectionsGl();
+        this.initGradientGl();
     }
 
     private renderWorldMap() {
         let gl = this.gl
         gl.depthMask(false);
         gl.useProgram(glShaders[EShader.WorldMap]);
-        gl.uniformMatrix4fv(this.worldMapVPLoc, false, a.matViewProjection);
+        gl.uniformMatrix4fv(this.worldMapVPLoc, false, this.camera.matViewProjection);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.worldMapTexture);
         gl.uniform1i(this.worldMapTextureLoc, 0);
@@ -487,10 +595,21 @@ export class CWorld {
         gl.drawArrays(gl.TRIANGLES, 0, 108);
     }
 
+    private renderGradient() {
+        let gl = this.gl
+        gl.depthMask(false);
+        gl.useProgram(glShaders[EShader.Gradient]);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.gradientTexture);
+        gl.uniform1i(this.gradientTextureLoc, 0);
+        gl.bindVertexArray(this.gradientVao);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
     renderConnections() {
         let gl = this.gl
         gl.useProgram(glShaders[EShader.Connection]);
-        gl.uniformMatrix4fv(this.connectionVPLoc, false, a.matViewProjection);
+        gl.uniformMatrix4fv(this.connectionVPLoc, false, this.camera.matViewProjection);
         gl.bindVertexArray(this.connectionVao);
         gl.drawArraysInstanced(gl.LINES, 0, 2, this.numConnectionsToDraw);
     }
@@ -499,7 +618,7 @@ export class CWorld {
         let gl = this.gl
         gl.depthMask(true);
         gl.useProgram(glShaders[EShader.Icosa]);
-        gl.uniformMatrix4fv(this.icosaVPLoc, false, a.matViewProjection);
+        gl.uniformMatrix4fv(this.icosaVPLoc, false, this.camera.matViewProjection);
         gl.uniform4fv(this.paramsLoc, this.params);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.noiseTexture);
@@ -516,12 +635,15 @@ export class CWorld {
             this.renderConnections()
         }
         this.renderNodes()
+        if (this.colorMode != EColorMode.Random && this.displayGradient) {
+            this.renderGradient();
+        }
     }
 
     public renderPicker() {
         let gl = this.gl
         gl.useProgram(glShaders[EShader.Picker]);
-        gl.uniformMatrix4fv(this.pickerVPLoc, false, a.matViewProjection);
+        gl.uniformMatrix4fv(this.pickerVPLoc, false, this.camera.matViewProjection);
         gl.uniform4fv(this.pickerParamsLoc, this.params);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.noiseTexture);

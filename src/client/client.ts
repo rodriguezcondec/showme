@@ -1,10 +1,7 @@
 
-import { a } from './globals';
 import { CApp } from './app'
 
 let app : CApp;
-
-
 
 function main() {
     app = new CApp(document.querySelector("#bancan"))
@@ -17,15 +14,15 @@ window.addEventListener('resize', onWindowResize, false)
 function onWindowResize() {
 
     var canvas: HTMLCanvasElement = document.querySelector("#bancan");
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const bounds = canvas.getBoundingClientRect();
-    if (a.gl) {
-        a.gl.viewport(0,0,bounds.width,bounds.height)
+    if (app.gl) {
+        app.gl.viewport(0,0,bounds.width,bounds.height)
     }
-    if (a.pcamera) {
-        a.pcamera.update()
+    if (app.camera) {
+        app.camera.update();
     }
 }
 
@@ -34,8 +31,8 @@ window.addEventListener('contextmenu', function (e) {
 }, false);
 
 var animate = function () {
-    app.render()
-    requestAnimationFrame(animate)
+    app.render();
+    requestAnimationFrame(animate);
 };
 
 animate();

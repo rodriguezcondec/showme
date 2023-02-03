@@ -1,30 +1,28 @@
 
-import { a } from './globals'
 import { EShader, IShader } from './core'
 
 export var glShaders : WebGLProgram []
 
 
-export function createProgram(shader: IShader) : WebGLProgram {
-    let gl = a.gl
-    const vertexShader = gl.createShader(gl.VERTEX_SHADER)
-    gl.shaderSource(vertexShader, shader.vertex)
-    gl.compileShader(vertexShader)
+export function createProgram(shader: IShader, gl: WebGL2RenderingContext) : WebGLProgram {
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vertexShader, shader.vertex);
+    gl.compileShader(vertexShader);
   
     var compiled = gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS);
     var compilationLog = gl.getShaderInfoLog(vertexShader);
   
-    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
-    gl.shaderSource(fragmentShader, shader.fragment)
-    gl.compileShader(fragmentShader)
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fragmentShader, shader.fragment);
+    gl.compileShader(fragmentShader);
   
     compiled = gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS);
     compilationLog = gl.getShaderInfoLog(fragmentShader);
   
-    let program : WebGLProgram = gl.createProgram()
-    gl.attachShader(program, vertexShader)
-    gl.attachShader(program, fragmentShader)
-    gl.linkProgram(program)
+    let program : WebGLProgram = gl.createProgram();
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
   
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
         alert('Unable to initialize the shader program: ' + gl.getProgramInfoLog(program));
@@ -33,10 +31,10 @@ export function createProgram(shader: IShader) : WebGLProgram {
     return program
 }
 
-export function initShadersGl() {
+export function initShadersGl(gl: WebGL2RenderingContext) {
     glShaders = new Array(EShader.Last)
     for (let i = 0; i < EShader.Last; i++) {
-      glShaders[i] = createProgram(glslSrc[i])
+      glShaders[i] = createProgram(glslSrc[i], gl);
     }
 }
 
@@ -130,7 +128,8 @@ const glslIcosa : IShader = {
     if (transformedUv.x < 0.0 || transformedUv.x > 1.0) {
         fragColor = vec4(0.0, 0.0, 0.0, 1.0);
     } else {
-        fragColor = texture(u_worldMapTexture, transformedUv);
+        vec4 pixel = texture(u_worldMapTexture, transformedUv);
+        fragColor = vec4(pixel.rgb * 0.6, 1.0);
     }
   }
   `
@@ -160,6 +159,29 @@ const glslIcosa : IShader = {
   `
   }
 
+  const glslGradient : IShader = {
+    vertex: `#version 300 es
+  in vec2 a_position;
+  in vec2 a_uv;
+  out vec2 vUv;
+
+  void main(){
+    vUv = a_uv;
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+  `,
+  fragment: `#version 300 es
+  precision highp float;
+  in vec2 vUv;
+  uniform sampler2D u_gradientTexture;
+  out vec4 fragColor;
+  void main() {
+     fragColor = texture(u_gradientTexture, vUv);
+  }
+  `
+  }
+
+
 
 
 
@@ -167,5 +189,6 @@ let glslSrc : IShader [] = [
     glslIcosa,
     glslPicker,
     glslWorldMap,
-    glslConnection
+    glslConnection,
+    glslGradient
 ]
