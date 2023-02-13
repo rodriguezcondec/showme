@@ -13,7 +13,7 @@ export class PCamera {
     matView: mat4;
     matViewProjection: mat4;
     matProjection: mat4;
-    nodeScale: vec3;
+    nodeScale: number;
 
     public constructor(x: number, y: number, z: number, canvas: HTMLCanvasElement) {
         this.near = 16
@@ -26,7 +26,7 @@ export class PCamera {
         this.matView = mat4.create()
         this.matProjection = mat4.create()
         this.matViewProjection = mat4.create()
-        this.nodeScale = vec3.fromValues(1, 1, 1);
+        this.nodeScale = 1.0;
         this.update()
     }
 

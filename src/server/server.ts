@@ -9,15 +9,16 @@ class App {
     private port: number
 
     constructor(port: number) {
-        this.port = port
-        const app = express()
-        app.use(express.static(path.join(__dirname, '../client')))      
+        this.port = port;
+        const app = express();
+        app.use(express.static(path.join(__dirname, '../client')));
+        // app.use(express.static(path.join(__dirname, '../../force-graph')))
         this.server = new http.Server(app);
     }
 
     public Start() {
         this.server.listen(this.port, () => {
-            console.log( `Server listening on port ${this.port}.` )
+            console.log(`Server listening on port ${this.port}.`);
         })
     }
 }

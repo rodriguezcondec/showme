@@ -1,6 +1,6 @@
 
 
-const ICOSA_SCALE: number = 1.2
+const ICOSA_SCALE: number = 1.0
 const positions = [
     0.000000, -0.525731, 0.850651,
     0.850651, 0.000000, 0.525731,
@@ -63,7 +63,6 @@ const indices = [
 ]
 
 export function icosaGeometry(gl: WebGL2RenderingContext) : WebGLBuffer {
-    console.log('initIcosa')
     let size = 20 * 3 * 6;
     let icosaData : Float32Array = new Float32Array(size)
     let i = 0;

@@ -59,7 +59,7 @@ export class CApp {
         this.initialize();
         this.initializeWebGl(this.gl);
         this.world = new CWorld(state, this.gl, this.canvas, this.camera);
-        this.world.initialize();
+        await this.world.initialize();
         this.initialized = true;
         this.mousekey = new CMousekeyCtlr(this);
     }
@@ -134,7 +134,7 @@ export class CApp {
             }
             if (id == EKeyId.ToggleGradient && this.world) {
                 this.world.displayGradient = !this.world.displayGradient;
-                document.getElementById("gradient").style.visibility = this.world.colorMode != EColorMode.Random && this.world.displayGradient ? "visible" : "hidden";
+                document.getElementById("gradient").style.visibility = this.world.displayGradient ? "visible" : "hidden";
 
             }
             if (id == EKeyId.ColorMode && this.world) {
@@ -158,14 +158,13 @@ export class CApp {
     }
 
     public handleClick(x: number, y: number) {
-        console.log(`showme: handleClick: ${x}, ${y}`)
         this.world.handleClick(x-0.5, y-0.5)
     }
 
     private updateActions(delta: number) {
         // reach maximum velocity in 200 ms
         const ACC = 2.5;
-        const MAXVEL = 0.5;
+        const MAXVEL = 0.7;
         let accelX: number = 0;
         let accelY: number = 0;
         let accelZ: number = 0;
@@ -288,7 +287,7 @@ export class CApp {
             }
             this.camera.nodeScale = zoomLogToScale(this.zoomLogarithm);
             this.camera.z = Math.exp(this.zoomLogarithm)
-            console.log(`Z ${this.camera.z}, log ${this.zoomLogarithm}`)
+            // console.log(`Z ${this.camera.z}, log ${this.zoomLogarithm}, nodeScale ${this.camera.nodeScale}`)
             this.camera.update()
         }
     }

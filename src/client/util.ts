@@ -28,7 +28,6 @@ export function colorToId(color: number) : number {
     let green = Math.floor(g / 4);
     let blue = Math.floor(b / 4);
     let id = red * 4096 + green * 64 + blue;
-    console.log('id ', id);
     return id;
 }
 
@@ -111,15 +110,15 @@ function isPowerOf2(value) {
 }
 
 const maxLog = 7.6;
-const minLog = 4.1;
+const minLog = 5.5;
 const deltaLog = maxLog - minLog
-export function zoomLogToScale(zoomLogarithm: number) : vec3 {
-    let scale = 1;
+const scaleMax = 3.2;
+export function zoomLogToScale(zoomLogarithm: number) : number {
+    let scale = 1.0;
     if (zoomLogarithm > maxLog) {
-        scale = 4
+        scale = scaleMax;
     } else if (zoomLogarithm > minLog ){
-        scale = 1 + (zoomLogarithm - minLog) * 3 / deltaLog;
+        scale = 1 + (zoomLogarithm - minLog) * (scaleMax-1.0) / deltaLog;
     }
-    // console.log('scale now ', scale)
-    return vec3.fromValues(scale, scale, scale);
+    return scale;
 }
