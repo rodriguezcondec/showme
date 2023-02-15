@@ -131,23 +131,21 @@
 </head>
 <body>
     <script type="module" src="main.js"></script>
-    <!-- <input id="clickme" type="button" value="Load state file"/> -->
 
     <div class="container" id="clickdiv">
         <div class="center">
-            <input class="button-15" id="clickme" type="button" value="Load state file"/>
+            <input class="button-15" id="clickgeo" type="button" value="Load state file"/>
         </div>
       </div>
-
     <div id="myElement">
         <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
         <canvas id="bancan" margin=0px></canvas>
-        <div id="overlayLeft">
+        <div id="overlayLeft" style="visibility: hidden;">
             <div>&nbspTime: <span id="time"></span></div>
             <div>&nbsp&nbspFPS: <span id="fps"></span></div>
             <div>Color: <span id="colormode"></span></div>
           </div>
-          <div id="overlayRight">
+          <div id="overlayRight" style="visibility: hidden;">
             <div><span id="ip"></span></div>
             <div>Betweenness: <span id="betweenness"></span></div>
             <div>Closeness: <span id="closeness"></span></div>
@@ -159,7 +157,7 @@
             <div>City: <span id="city"></span></div>
             <div>Country: <span id="country"></span></div>
           </div>
-          <div id="instructions">
+          <div id="instructions" style="visibility: hidden;">
             <div>Keyboard Commands <span id="keyboard"></span></div>
             <div>&nbsp&nbsparrow keys: move left, right, up, down<span id="pan"></span></div>
             <div>&nbsp&nbspi: zoom in <span id="zoomin"></span></div>
@@ -170,7 +168,7 @@
             <div>&nbsp&nbspn: toggle connections display<span id="toggleconn"></span></div>
             <div>&nbsp&nbspx: toggle command overlay<span id="command"></span></div>
           </div>
-          <div id="gradient">
+          <div id="gradient" style="visibility: hidden;">
             <div>0  DEGREE  433 <span id="legend"></span></div>
           </div>
         <div id="asdf" style="justify-content: center; display: flex; position: absolute; flex-direction: column; left: 2px; height: 100%;">

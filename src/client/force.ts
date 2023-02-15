@@ -1,26 +1,31 @@
-// Random tree
-console.log('in force-3d.js');
+import { showOpenFilePicker } from 'file-system-access'
+import ForceGraph3D from '3d-force-graph';
+import { IState } from './core';
 
-var clickme = document.getElementById("clickme");
-clickme.addEventListener("click", loadState, false);
 
-async function loadState() {
-    let fileHandle;
+export async function loadForceState() {
+    let fileHandle : FileSystemFileHandle;
     try {
-        [fileHandle] = await window.showOpenFilePicker();
+        if (window.showOpenFilePicker) {
+            console.log('Using native window.showOpenFilePicker');
+            [fileHandle] = await window.showOpenFilePicker();
+        } else {
+            console.log('Using polyfile version of showOpenFilePicker');
+            [fileHandle] = await showOpenFilePicker();
+        }
     } catch (err) {
+        console.log(err);
         console.log('User cancelled request, or problem loading file.  Gracefully exiting loadState');
         return;
     }
-
     fileHandle.getFile().then( async (file) => {
         const contents = await file.text();
         handleStateText(contents);
     });
 }
 
-function handleStateText(text) {
-    let istate = JSON.parse(text);
+function handleStateText(text: string) {
+    let istate : IState = JSON.parse(text);
     console.log('my istate: ', istate);
     const N = 300;
     let nodes = new Array();
@@ -52,14 +57,16 @@ function handleStateText(text) {
     (document.getElementById('graph'))
         .linkVisibility(false)
         .nodeAutoColorBy('group')
-        .nodeLabel(node => `${node.name}: ${node.ip} ${node.city}`)
+        .nodeLabel(node => `${node['name']}: ${node['ip']} ${node['city']}`)
         .graphData(Data);
    
 
     Graph.onNodeClick(node => {
         Graph.linkVisibility((link) => {
-            return link.source.name == node.name;})
+            return link.source['name'] == node['name'];})
            });
 
 }
 
+var clickforce = document.getElementById("clickforce");
+if (clickforce) clickforce.addEventListener("click", loadForceState, false);
