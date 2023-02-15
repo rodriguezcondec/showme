@@ -12,7 +12,6 @@ class App {
         this.port = port;
         const app = express();
         app.use(express.static(path.join(__dirname, '../client')));
-        // app.use(express.static(path.join(__dirname, '../../force-graph')))
         this.server = new http.Server(app);
     }
 

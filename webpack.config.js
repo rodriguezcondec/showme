@@ -7,6 +7,7 @@ module.exports = {
     './dist/client/camera.js',
     './dist/client/client.js',
     './dist/client/core.js',
+    './dist/client/force-3d.js',
     './dist/client/mousekeyctlr.js',
   ],
   output: {

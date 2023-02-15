@@ -26,7 +26,7 @@ export class CApp {
     public mouseIsOut: boolean;
 
 
-    public constructor(canvas: HTMLCanvasElement) {
+    public constructor(canvas: HTMLCanvasElement, handle: FileSystemFileHandle) {
         this.canvas = canvas
         this.canvas.width = window.innerWidth
         this.canvas.height = window.innerHeight
@@ -38,10 +38,12 @@ export class CApp {
         }
 
         let self = this
-        self.readTextFile('data/state.json', async function(atext: string) {
-            let istate = <IState>JSON.parse(atext)
-                await self.init(istate)
-        });
+        handle.getFile().then( async (file: File) => {
+            const contents = await file.text();
+                let istate = <IState>JSON.parse(contents)
+                    await self.init(istate)
+            });
+
         this.startTime = Date.now()/1000
         this.lastTime = 0
         this.iter = 0
@@ -125,7 +127,7 @@ export class CApp {
             }
             if (id == EKeyId.ToggleCommand && this.world) {
                 this.world.displayCommand = !this.world.displayCommand;
-                console.log('displayCOmmand now ', this.world.displayCommand);
+                console.log('displayCommand now ', this.world.displayCommand);
                 document.getElementById("instructions").style.visibility = this.world.displayCommand ? "visible" : "hidden";
             }
             if (id == EKeyId.ToggleFps && this.world) {

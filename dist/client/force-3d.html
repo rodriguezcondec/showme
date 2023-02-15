@@ -1,0 +1,69 @@
+<head>
+  <title>force me in 3d</title>
+  <style>
+  body {
+    margin: 0;
+    background-color: #DBF9FC;
+  }
+.button-15 {
+  background-image: linear-gradient(#42A1EC, #0070C9);
+  border: 1px solid #0077CC;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  direction: ltr;
+  display: block;
+  font-family: 'Helvetica Neue', sans-serif;
+  font-size: 28px;
+  line-height: 24px;
+  overflow: visible;
+  padding: 10px 25px;
+  text-align: center;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+}
+
+.button-15:disabled {
+  cursor: default;
+  opacity: .3;
+}
+
+.button-15:hover {
+  background-image: linear-gradient(#51A9EE, #147BCD);
+  border-color: #1482D0;
+  text-decoration: none;
+}
+.container {
+  height: 200px;
+  position: relative;
+  /* border: 3px solid green; */
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+</style>
+  <script src="//unpkg.com/3d-force-graph"></script>
+</head>
+
+<body>
+  <div id="graph"></div>
+
+
+  <div class="container">
+    <div class="center">
+        <input class="button-15" id="clickme" type="button" value="Load state file"/>
+    </div>
+  </div>
+
+  <script src="./force-3d.js"></script>
+</body>
