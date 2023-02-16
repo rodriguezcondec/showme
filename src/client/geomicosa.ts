@@ -1,6 +1,6 @@
 
 
-const ICOSA_SCALE: number = 1.0
+const ICOSA_SCALE: number = 1.5
 const positions = [
     0.000000, -0.525731, 0.850651,
     0.850651, 0.000000, 0.525731,

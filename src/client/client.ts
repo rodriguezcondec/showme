@@ -26,12 +26,11 @@ async function loadGeoState() {
     document.getElementById("instructions").style.visibility = 'visible';
     document.getElementById("overlayLeft").style.visibility = 'visible';
     document.getElementById("gradient").style.visibility = 'visible';
-
+    window.addEventListener('resize', onWindowResize, false);
     app = new CApp(document.querySelector("#bancan"), fileHandle)
     window['showmeapp'] = app;
 }
 
-window.addEventListener('resize', onWindowResize, false);
 
 function onWindowResize() {
 

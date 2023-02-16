@@ -132,6 +132,7 @@ export class CWorld {
         this.gradientNode = document.createTextNode("");
 
         this.updateColorDisplay();
+        this.updateNodeColors();
 
         // Add those text nodes where they need to go
         document.querySelector("#time").appendChild(this.timeNode);
@@ -223,7 +224,7 @@ export class CWorld {
                 document.getElementById("gradient").textContent = this.degreeDescription;
                 break;
         }
-        this.updateNodeColors();
+        console.log('updateColorDisplay this.degreeDescription ', this.degreeDescription);
         document.getElementById("gradient").style.visibility = this.displayGradient ? "visible" : "hidden";
     }
 
@@ -233,6 +234,7 @@ export class CWorld {
             this.colorMode = EColorMode.Between;
         }
         this.updateColorDisplay();
+        this.updateNodeColors();
     }
 
     public getNode(id: number) : CNode {
@@ -645,9 +647,9 @@ export class CWorld {
         let precision = gl.getParameter(gl.DEPTH_BITS) ;
         console.log('precision is ', precision);
         if (width >= 8192) {
-            this.worldMapTexture = await loadTexture(gl, "data/Blue_Marble_NG_8k.jpeg");
+            this.worldMapTexture = await loadTexture(gl, "data/world-mono-8k.png");
         } else {
-            this.worldMapTexture = await loadTexture(gl, "data/Blue_Marble_NG_4k.jpeg");
+            this.worldMapTexture = await loadTexture(gl, "data/world-mono-4k.png");
         }
         this.gradientTexture = await loadTexture(gl, "data/gradient.jpeg");
 
@@ -770,6 +772,7 @@ export class CWorld {
         }
 
         this.setDescriptions();
+        this.updateColorDisplay();
         this.setAuxColors();
         await this.initTexturesGl();
         this.initNodesGl();

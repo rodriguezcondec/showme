@@ -1,6 +1,6 @@
 
 
-const CUBE_SCALE: number = 0.9;
+const CUBE_SCALE: number = 1.4;
 const CUBE_POLYS: number = 12;
 const positions: number [] = [
     // top left front: v 0

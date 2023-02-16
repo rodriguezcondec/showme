@@ -28,6 +28,10 @@ export class CMousekeyCtlr {
             let y = evt.offsetY;
             self.onMouseEvent(evt);
         });
+        window.addEventListener('wheel', (evt) => {
+            console.log(`wheel: dx ${evt.deltaX} dy ${evt.deltaY}`)
+            self.onMouseEvent(evt);
+        });
     }
 
     public onMouseLeftDown(x: number, y: number) {
