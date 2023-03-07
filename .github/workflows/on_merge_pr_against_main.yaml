@@ -30,4 +30,4 @@ jobs:
 
     - name: Upload Ziggurat to Cloud Storage
       run: |
-        gsutil cp -r showme gs://eqg-ziggurat-bucket/showme
+        gsutil cp -r ./showme gs://eqg-ziggurat-bucket/showme
