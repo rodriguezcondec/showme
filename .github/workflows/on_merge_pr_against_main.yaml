@@ -31,3 +31,11 @@ jobs:
     - name: Upload Ziggurat to Cloud Storage
       run: |
         gsutil cp -r ../showme gs://eqg-ziggurat-bucket/
+
+    - name: Update GCE instance metadata with changes
+      run: |
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- rm -rf shomwe && gsutil -m cp -r gs://eqg-ziggurat-bucket/showme .
+    
+    - name: Run Ziggurat visualizer
+      run: |
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- npm i && npm run build && npm run start
