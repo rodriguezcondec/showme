@@ -1,6 +1,7 @@
 name: Deploy Ziggurat visualizer
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
