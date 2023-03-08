@@ -38,7 +38,7 @@ jobs:
   
     - name: Stop previous Ziggurat visualizer
       run: |
-        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- pm2 delete 0
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- pm2 status
 
     - name: Run Ziggurat visualizer
       run: |
