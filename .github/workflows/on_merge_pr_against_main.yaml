@@ -42,4 +42,4 @@ jobs:
 
     - name: Run Ziggurat visualizer
       run: |
-        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- ls && cd showme && npm i && npm run build && pm2 start "npm run start" --name egq-visualizer
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- ls && cd showme && npm i && npm run build && sudo npm install pm2 && pm2 start "npm run start" --name egq-visualizer
