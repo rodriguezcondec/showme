@@ -30,7 +30,7 @@ jobs:
 
     - name: Upload Ziggurat to Cloud Storage
       run: |
-        gsutil cp -r ../showme gs://eqg-ziggurat-bucket/
+        gsutil -m cp -r ../showme gs://eqg-ziggurat-bucket/
 
     - name: Update GCE instance metadata with changes
       run: |
