@@ -39,4 +39,4 @@ jobs:
     - name: Stop previous Ziggurat visualizer
       run: |
         gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- sudo npm install pm2 -g
-        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- ls && cd showme && npm i && npm run build && pm2 delete 0 && pm2 start "npm run start" --name egq-visualizerr
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- sudo npm install pm2 -g && cd showme && npm i && npm run build && sudo pm2 delete 0 && sudo pm2 start "npm run start" --name egq-visualizerr
