@@ -4,7 +4,7 @@ import http from "http"
 import https from "https"
 import fs from "fs"
 
-const port: number = 3000
+const port: number = 8080
 let useSsl: boolean = true;
 
 if (process.argv.length > 2 && process.argv[2] == 'http') {
