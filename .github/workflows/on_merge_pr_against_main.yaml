@@ -45,3 +45,6 @@ jobs:
         push: true
         tags: europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}
           
+    - name: Run docker image
+      run: |
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- sudo docker pull europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run -d -p 3000:3000 europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}
