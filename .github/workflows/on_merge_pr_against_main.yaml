@@ -47,4 +47,4 @@ jobs:
           
     - name: Run Ziggurat visualizer
       run: |
-        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b --command="bash sudo docker rm -f $(sudo docker ps -aq) && sudo docker pull europe-west3-docker.pkg.dev/eqg-ziggurat/eqg-ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run  -d -p 3000:3000 europe-west3-docker.pkg.dev/eqg-ziggurat/eqg-ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}" -- -t
+        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b --command="bash -i -c sudo docker rm -f $(sudo docker ps -aq)" -- -t
