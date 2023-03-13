@@ -44,7 +44,11 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}
-          
-    - name: Run docker image
-      run: |
-        gcloud compute ssh eqg-ziggurat-visualizer --zone=europe-west1-b -- sudo docker pull europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run -d -p 3000:3000 europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}
+
+    - id: 'compute-ssh'
+      uses: 'google-github-actions/ssh-compute@v0'
+      with:
+        instance_name: 'eqg-ziggurat-visualizer'
+        zone: 'europe-west1-b'
+        ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
+        command: 'echo Hello world'
