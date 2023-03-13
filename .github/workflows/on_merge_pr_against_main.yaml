@@ -51,4 +51,4 @@ jobs:
         instance_name: 'eqg-ziggurat-visualizer'
         zone: 'europe-west1-b'
         ssh_private_key: '${{ secrets.GCP_SSH_PRIVATE_KEY }}'
-        command: 'gcloud auth configure-docker europe-west1-docker.pkg.dev && sudo docker rm -f $(sudo docker ps -aq) && sudo docker pull europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run -d -p 3000:3000 europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}'
+        command: 'gcloud auth configure-docker europe-west1-docker.pkg.dev -q && sudo docker rm -f $(sudo docker ps -aq) && sudo docker pull europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}} && sudo docker run -d -p 3000:3000 europe-west1-docker.pkg.dev/eqg-ziggurat/ziggurat/eqg-ziggurat-visualizer:${{github.ref_name}}'
